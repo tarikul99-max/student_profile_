@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Glorious Education Care | Google Sign-In Portal</title>
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #1b5e20;
+            --primary-dark: #0a3b0a;
+            --primary-light: #6aab4a;
+            --primary-gradient-start: #1e6b1e;
+            --primary-gradient-mid: #2e7d32;
+            --primary-gradient-end: #4caf50;
+            --accent: #ffd966;
+            --danger: #d32f2f;
+            --warning: #ff9800;
+            --text-dark: #1f2e1a;
+        }
+
+        body {
+            font-family: 'Inter', 'Noto Sans Bengali', sans-serif;
+            background: linear-gradient(135deg, #e0f2e0 0%, #c8e6c9 100%);
+            min-height: 100vh;
+        }
+
+        /* Login Overlay */
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.3s;
+        }
+
+        .login-card {
+            background: white;
+            border-radius: 40px;
+            padding: 45px 40px;
+            width: 90%;
+            max-width: 460px;
+            text-align: center;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+            animation: fadeInUp 0.4s ease;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .login-logo {
+            width: 90px;
+            height: 90px;
+            background: linear-gradient(135deg, var(--primary-gradient-start), var(--primary-gradient-end));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 42px;
+            font-weight: bold;
+            color: var(--accent);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        .login-card h2 {
+            color: var(--primary);
+            margin-bottom: 8px;
+            font-size: 28px;
+        }
+
+        .login-card p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+
+        .google-login-btn {
+            width: 100%;
+            padding: 14px;
+            background: white;
+            color: #444;
+            border: 2px solid #ddd;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: 0.3s;
+            margin-bottom: 20px;
+        }
+
+        .google-login-btn:hover {
+            border-color: var(--primary);
+            background: #f8fff8;
+            transform: translateY(-2px);
+        }
+
+        .google-login-btn img {
+            width: 24px;
+            height: 24px;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 20px 0;
+            color: #999;
+            font-size: 12px;
+        }
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .divider::before { margin-right: 10px; }
+        .divider::after { margin-left: 10px; }
+
+        .demo-info {
+            background: #f5f5f5;
+            border-radius: 20px;
+            padding: 15px;
+            margin-top: 15px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .error-msg {
+            color: var(--danger);
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        /* Main App */
+        .main-app {
+            display: none;
+            max-width: 1400px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 32px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        /* Header with Gradient */
+        .main-header {
+            background: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-mid) 50%, var(--primary-gradient-end) 100%);
+            padding: 20px 30px;
+            color: white;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .logo {
+            width: 75px;
+            height: 75px;
+            background: linear-gradient(145deg, #ffd966, #ffc107);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 34px;
+            font-weight: bold;
+            color: var(--primary-dark);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .title h1 {
+            font-size: 28px;
+            letter-spacing: 1px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .title p {
+            font-size: 12px;
+            opacity: 0.95;
+            font-style: italic;
+        }
+
+        .bismillah {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .header-right-address {
+            text-align: right;
+            font-size: 11px;
+            font-weight: 500;
+            background: rgba(0,0,0,0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+        }
+
+        /* User Bar */
+        .user-bar {
+            background: #eef5e9;
+            padding: 10px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-weight: 600;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .logout-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 30px;
+            cursor: pointer;
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            background: white;
+            border-bottom: 2px solid #e0e0e0;
+            display: flex;
+            gap: 5px;
+            padding: 0 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 14px 28px;
+            background: none;
+            border: none;
+            font-size: 15px;
+            font-weight: 600;
+            color: #555;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom: 3px solid var(--primary);
+            background: #f8fff4;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 25px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Profile Edit Section */
+        .profile-edit-container {
+            background: white;
+            border-radius: 24px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .profile-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .edit-toggle-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .profile-view-mode, .profile-edit-mode {
+            transition: all 0.3s;
+        }
+
+        .profile-edit-mode {
+            display: none;
+        }
+
+        .profile-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .profile-field {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .profile-field label {
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 13px;
+        }
+
+        .profile-field input, .profile-field select, .profile-field textarea {
+            padding: 10px 14px;
+            border: 1px solid #c8e0bc;
+            border-radius: 16px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .view-value {
+            background: #f5f9f0;
+            padding: 10px 14px;
+            border-radius: 16px;
+            color: #333;
+        }
+
+        .save-profile-btn {
+            background: var(--primary);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 40px;
+            cursor: pointer;
+            margin-top: 20px;
+            width: 100%;
+            font-weight: bold;
+        }
+
+        /* Exam Cards Section */
+        .exam-cards-container {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .exam-card {
+            background: white;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            border: 1px solid #e0e8e0;
+        }
+
+        .exam-card-header {
+            background: linear-gradient(135deg, var(--primary-gradient-start), var(--primary-gradient-mid));
+            color: white;
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .exam-card-header h3 {
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .exam-badge {
+            background: var(--accent);
+            color: var(--primary-dark);
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .exam-table-wrap {
+            overflow-x: auto;
+            padding: 15px;
+        }
+
+        .exam-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        .exam-table th, .exam-table td {
+            border: 1px solid #cde2c0;
+            padding: 10px 8px;
+            text-align: center;
+        }
+
+        .exam-table th {
+            background: #e8f5e9;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 30px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .pass { background: #c8e6c9; color: #1b5e20; }
+        .fail { background: #ffcdd2; color: #b71c1c; }
+
+        .no-exam-msg {
+            text-align: center;
+            padding: 40px;
+            color: #777;
+        }
+
+        .footer {
+            background: linear-gradient(135deg, var(--primary-gradient-start), var(--primary-dark));
+            color: white;
+            padding: 30px;
+        }
+
+        .footer-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 30px;
+        }
+
+        .footer-section h4 {
+            margin-bottom: 12px;
+        }
+
+        .footer-section p {
+            opacity: 0.8;
+            font-size: 12px;
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 20px;
+            margin-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            font-size: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .tab-content { padding: 15px; }
+            .tab-btn { padding: 10px 16px; font-size: 12px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Login Overlay -->
+<div id="loginOverlay" class="login-overlay">
+    <div class="login-card">
+        <div class="login-logo"><i class="fas fa-graduation-cap"></i></div>
+        <h2>GLORIOUS Education Care</h2>
+        <p>ছাত্র পোর্টালে স্বাগতম</p>
+        
+        <button id="googleSignInBtn" class="google-login-btn">
+            <img src="https://www.google.com/favicon.ico" alt="Google"> Google দিয়ে লগইন করুন
+        </button>
+        
+        <div class="divider">অথবা</div>
+        
+        <div class="demo-info">
+            <i class="fas fa-info-circle"></i> ডেমো অ্যাকাউন্ট: <strong>student@glorious.edu.bd</strong><br>
+            Google লগইন ব্যবহার করে আপনার Gmail অ্যাকাউন্ট দিয়ে প্রবেশ করুন।<br>
+            <span style="font-size: 11px;">✅ নিরাপদ ও প্রাইভেসি সুরক্ষিত</span>
+        </div>
+        <div id="loginError" class="error-msg"></div>
+    </div>
+</div>
+
+<!-- Main Application -->
+<div id="mainApp" class="main-app">
+    <div class="main-header">
+        <div class="header-container">
+            <div class="logo-area">
+                <div class="logo"><i class="fas fa-tree"></i></div>
+                <div class="title">
+                    <h1>GLORIOUS Education Care</h1>
+                    <p><i class="fas fa-leaf"></i> সৃজনশীল প্রতিভার অন্বেষণে... <i class="fas fa-leaf"></i></p>
+                </div>
+            </div>
+            <div class="bismillah">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+            <div class="header-right-address">
+                <i class="fas fa-map-marker-alt"></i> পেকুয়া, কক্সবাজার<br>
+                📞 ০১৬৬৮-৫৩৭২২, ০১৭৫৬১৭৯৯৬
+            </div>
+        </div>
+    </div>
+
+    <div class="user-bar">
+        <div class="user-info">
+            <img id="userAvatar" class="user-avatar" src="" alt="Avatar">
+            <span id="loggedUserName">ছাত্র</span>
+            <span id="loggedUserEmail" style="font-size: 12px; color: #666;"></span>
+        </div>
+        <button id="logoutBtn" class="logout-btn"><i class="fas fa-sign-out-alt"></i> লগআউট</button>
+    </div>
+
+    <div class="nav-tabs">
+        <button class="tab-btn active" data-tab="profile"><i class="fas fa-user-edit"></i> আমার প্রোফাইল</button>
+        <button class="tab-btn" data-tab="result"><i class="fas fa-chart-line"></i> আমার রেজাল্ট</button>
+    </div>
+
+    <!-- Profile Tab with Edit Option -->
+    <div id="profileTab" class="tab-content active">
+        <div class="profile-edit-container">
+            <div class="profile-header">
+                <h2 style="color: var(--primary);"><i class="fas fa-id-card"></i> আমার ব্যক্তিগত তথ্য</h2>
+                <button id="enableEditBtn" class="edit-toggle-btn"><i class="fas fa-edit"></i> তথ্য সম্পাদনা করুন</button>
+            </div>
+            
+            <div id="profileViewMode" class="profile-view-mode">
+                <div class="profile-grid" id="profileViewGrid"></div>
+            </div>
+            
+            <div id="profileEditMode" class="profile-edit-mode">
+                <div class="profile-grid">
+                    <div class="profile-field"><label><i class="fas fa-user"></i> পূর্ণ নাম *</label><input type="text" id="editName" placeholder="আপনার নাম"></div>
+                    <div class="profile-field"><label><i class="fas fa-father"></i> পিতার নাম</label><input type="text" id="editFather" placeholder="পিতার নাম"></div>
+                    <div class="profile-field"><label><i class="fas fa-mother"></i> মাতার নাম</label><input type="text" id="editMother" placeholder="মাতার নাম"></div>
+                    <div class="profile-field"><label><i class="fas fa-calendar-alt"></i> জন্ম তারিখ</label><input type="date" id="editDob"></div>
+                    <div class="profile-field"><label><i class="fas fa-phone"></i> মোবাইল নম্বর</label><input type="tel" id="editPhone" placeholder="০১XXXXXXXXX"></div>
+                    <div class="profile-field"><label><i class="fas fa-tint"></i> রক্তের গ্রুপ</label><select id="editBlood"><option value="">নির্বাচন করুন</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>O+</option><option>O-</option><option>AB+</option><option>AB-</option></select></div>
+                    <div class="profile-field"><label><i class="fas fa-map-marker-alt"></i> ঠিকানা</label><textarea id="editAddress" rows="2" placeholder="বর্তমান ঠিকানা"></textarea></div>
+                    <div class="profile-field"><label><i class="fas fa-graduation-cap"></i> শ্রেণি</label><select id="editClass"><option>Class Five</option><option>Class Six</option><option>Class Seven</option><option>Class Eight</option><option selected>Class Nine</option><option>Class Ten</option></select></div>
+                    <div class="profile-field"><label><i class="fas fa-layer-group"></i> গ্রুপ</label><select id="editGroup"><option>Science</option><option>Commerce</option><option>Arts</option></select></div>
+                </div>
+                <button id="saveProfileBtn" class="save-profile-btn"><i class="fas fa-save"></i> তথ্য সংরক্ষণ করুন</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Result Tab with All Exams Separately -->
+    <div id="resultTab" class="tab-content">
+        <div class="exam-cards-container" id="examCardsContainer">
+            <div class="no-exam-msg"><i class="fas fa-spinner fa-spin"></i> লোড হচ্ছে...</div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="footer-container">
+            <div class="footer-section"><h4><i class="fas fa-school"></i> GLORIOUS Education Care</h4><p>সৃজনশীল প্রতিভার অন্বেষণে নিরন্তর</p></div>
+            <div class="footer-section"><h4><i class="fas fa-map-marker-alt"></i> ঠিকানা</h4><p>পেকুয়া, কক্সবাজার</p></div>
+            <div class="footer-section"><h4><i class="fas fa-phone-alt"></i> যোগাযোগ</h4><p>📞 ০১৬৬৮-৫৩৭২২, ০১৭৫৬১৭৯৯৬<br>📧 info@glorious.edu.bd</p></div>
+        </div>
+        <div class="copyright">&copy; 2026 GLORIOUS Education Care. সর্বস্বত্ব সংরক্ষিত।</div>
+    </div>
+</div>
+
+<script>
+    // Firebase Config
+    const firebaseConfig = {
+        apiKey: "AIzaSyCcwdSFN9L8kD7QayZgaoqUvTVjbpzQ2mI",
+        authDomain: "marksheet-72a4b.firebaseapp.com",
+        databaseURL: "https://marksheet-72a4b-default-rtdb.firebaseio.com/",
+        projectId: "marksheet-72a4b",
+        storageBucket: "marksheet-72a4b.firebasestorage.app"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    let currentUser = null;
+    let examsList = ["Half Yearly Exam", "Final Exam", "Monthly Test", "Weekly Test"];
+
+    // Google Sign-In
+    document.getElementById('googleSignInBtn').addEventListener('click', async () => {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
+        try {
+            const result = await auth.signInWithPopup(provider);
+            const user = result.user;
+            currentUser = {
+                uid: user.uid,
+                email: user.email,
+                name: user.displayName || user.email.split('@')[0],
+                photoURL: user.photoURL,
+                role: "student"
+            };
+            await loadStudentDataFromDB();
+            loginSuccess();
+        } catch (error) {
+            document.getElementById('loginError').innerText = "লগইন ব্যর্থ: " + error.message;
+        }
+    });
+
+    // Load/Save student profile data from Firebase
+    async function loadStudentDataFromDB() {
+        const snapshot = await db.ref(`students/${currentUser.uid}`).once('value');
+        const data = snapshot.val();
+        if (data) {
+            currentUser = { ...currentUser, ...data };
+        } else {
+            // Default profile
+            currentUser.class = "Class Nine";
+            currentUser.group = "Science";
+            currentUser.father = "";
+            currentUser.mother = "";
+            currentUser.dob = "";
+            currentUser.phone = "";
+            currentUser.blood = "";
+            currentUser.address = "";
+            await saveStudentDataToDB();
+        }
+    }
+
+    async function saveStudentDataToDB() {
+        await db.ref(`students/${currentUser.uid}`).set({
+            name: currentUser.name,
+            email: currentUser.email,
+            photoURL: currentUser.photoURL,
+            class: currentUser.class,
+            group: currentUser.group,
+            father: currentUser.father,
+            mother: currentUser.mother,
+            dob: currentUser.dob,
+            phone: currentUser.phone,
+            blood: currentUser.blood,
+            address: currentUser.address
+        });
+    }
+
+    function loginSuccess() {
+        document.getElementById('loginOverlay').style.display = 'none';
+        document.getElementById('mainApp').style.display = 'block';
+        document.getElementById('loggedUserName').innerText = currentUser.name;
+        document.getElementById('loggedUserEmail').innerText = currentUser.email;
+        if (currentUser.photoURL) {
+            document.getElementById('userAvatar').src = currentUser.photoURL;
+        }
+        renderProfileView();
+        loadAllExamResults();
+    }
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+        await auth.signOut();
+        currentUser = null;
+        document.getElementById('mainApp').style.display = 'none';
+        document.getElementById('loginOverlay').style.display = 'flex';
+        document.getElementById('loginError').innerText = '';
+    });
+
+    // Profile Functions
+    function renderProfileView() {
+        const viewGrid = document.getElementById('profileViewGrid');
+        viewGrid.innerHTML = `
+            <div class="profile-field"><label><i class="fas fa-user"></i> নাম</label><div class="view-value">${currentUser.name || '-'}</div></div>
+            <div class="profile-field"><label><i class="fas fa-envelope"></i> ইমেল</label><div class="view-value">${currentUser.email || '-'}</div></div>
+            <div class="profile-field"><label><i class="fas fa-father"></i> পিতার নাম</label><div class="view-value">${currentUser.father || '-'}</div></div>
+            <div class="profile-field"><label><i class="fas fa-mother"></i> মাতার নাম</label><div class="view-value">${currentUser.mother || '-'}</div></div>
+            <div class="profile-field"><label><i class="fas fa-calendar-alt"></i> জন্ম তারিখ</label><div class="view-value">${currentUser.dob || '-'}</div></div>
+            <div class="profile-field"><label><i class="fas fa-phone"></i> মোবাইল</label><div class="view-value">${currentUser.phone || '-'}</div></div>
+            <div class="profile-field"><label><i class="fas fa-tint"></i> রক্তের গ্রুপ</label><div class="view-value">${currentUser.blood || '-'}</div></div>
+            <div class="profile-field"><label><i class="fas fa-map-marker-alt"></i> ঠিকানা</label><div class="view-value">${currentUser.address || '-'}</div></div>
+            <div class="profile-field"><label><i class="fas fa-graduation-cap"></i> শ্রেণি</label><div class="view-value">${currentUser.class || '-'}</div></div>
+            <div class="profile-field"><label><i class="fas fa-layer-group"></i> গ্রুপ</label><div class="view-value">${currentUser.group || '-'}</div></div>
+        `;
+        
+        document.getElementById('editName').value = currentUser.name || '';
+        document.getElementById('editFather').value = currentUser.father || '';
+        document.getElementById('editMother').value = currentUser.mother || '';
+        document.getElementById('editDob').value = currentUser.dob || '';
+        document.getElementById('editPhone').value = currentUser.phone || '';
+        document.getElementById('editBlood').value = currentUser.blood || '';
+        document.getElementById('editAddress').value = currentUser.address || '';
+        document.getElementById('editClass').value = currentUser.class || 'Class Nine';
+        document.getElementById('editGroup').value = currentUser.group || 'Science';
+    }
+
+    document.getElementById('enableEditBtn').addEventListener('click', () => {
+        document.getElementById('profileViewMode').style.display = 'none';
+        document.getElementById('profileEditMode').style.display = 'block';
+    });
+
+    document.getElementById('saveProfileBtn').addEventListener('click', async () => {
+        currentUser.name = document.getElementById('editName').value;
+        currentUser.father = document.getElementById('editFather').value;
+        currentUser.mother = document.getElementById('editMother').value;
+        currentUser.dob = document.getElementById('editDob').value;
+        currentUser.phone = document.getElementById('editPhone').value;
+        currentUser.blood = document.getElementById('editBlood').value;
+        currentUser.address = document.getElementById('editAddress').value;
+        currentUser.class = document.getElementById('editClass').value;
+        currentUser.group = document.getElementById('editGroup').value;
+        
+        await saveStudentDataToDB();
+        renderProfileView();
+        document.getElementById('profileViewMode').style.display = 'block';
+        document.getElementById('profileEditMode').style.display = 'none';
+        document.getElementById('loggedUserName').innerText = currentUser.name;
+        alert("প্রোফাইল সফলভাবে আপডেট হয়েছে!");
+        loadAllExamResults(); // Reload results with new class/group
+    });
+
+    // Load All Exams Results based on Student's Class
+    async function loadAllExamResults() {
+        const container = document.getElementById('examCardsContainer');
+        container.innerHTML = '<div class="no-exam-msg"><i class="fas fa-spinner fa-spin"></i> রেজাল্ট লোড হচ্ছে...</div>';
+        
+        const classVal = currentUser.class || "Class Nine";
+        const groupVal = currentUser.group || "Science";
+        const noGrp = ['Class Five', 'Class Six', 'Class Seven', 'Class Eight'];
+        const groupPath = noGrp.includes(classVal) ? 'General' : groupVal;
+        
+        let examsData = [];
+        
+        for (let exam of examsList) {
+            const path = `results/${classVal}_${groupPath}_${exam}`.replace(/\s+/g, '_');
+            try {
+                const snapshot = await db.ref(path).once('value');
+                const data = snapshot.val();
+                if (data && data.students && data.marks) {
+                    const studentIndex = data.students.findIndex(s => s === currentUser.name);
+                    if (studentIndex !== -1) {
+                        const subjects = data.subjects || [];
+                        const fms = data.fms || {};
+                        let studentMarks = [];
+                        let total = 0, fullMark = 0, fail = false;
+                        
+                        subjects.forEach((sub, idx) => {
+                            let mark = data.marks[`${studentIndex}_${idx}`] || 0;
+                            let fm = fms[idx] || 100;
+                            total += mark;
+                            fullMark += fm;
+                            if (mark < fm * 0.33) fail = true;
+                            studentMarks.push({ subject: sub, mark: mark, full: fm });
+                        });
+                        
+                        let percent = fullMark > 0 ? Math.round((total / fullMark) * 100) : 0;
+                        examsData.push({
+                            examName: exam,
+                            subjects: subjects,
+                            marks: studentMarks,
+                            total: total,
+                            percent: percent,
+                            result: fail ? "Fail" : "Pass",
+                            fullMark: fullMark
+                        });
+                    }
+                }
+            } catch(e) { console.log(e); }
+        }
+        
+        if (examsData.length === 0) {
+            container.innerHTML = '<div class="no-exam-msg"><i class="fas fa-folder-open"></i> এখনো কোনো পরীক্ষার ফলাফল প্রকাশিত হয়নি। আপনার শ্রেণি: ' + classVal + '</div>';
+            return;
+        }
+        
+        container.innerHTML = '';
+        examsData.forEach(exam => {
+            const card = document.createElement('div');
+            card.className = 'exam-card';
+            card.innerHTML = `
+                <div class="exam-card-header">
+                    <h3><i class="fas fa-file-alt"></i> ${exam.examName}</h3>
+                    <span class="exam-badge">${exam.result === 'Pass' ? '✅ পাস' : '❌ ফেল'}</span>
+                </div>
+                <div class="exam-table-wrap">
+                    <table class="exam-table">
+                        <thead><tr><th>বিষয়</th><th>প্রাপ্ত নম্বর</th><th>পূর্ণমান</th><th>%</th></tr></thead>
+                        <tbody>
+                            ${exam.marks.map(m => `<tr><td>${m.subject}</td><td>${m.mark}</td><td>${m.full}</td><td>${Math.round((m.mark/m.full)*100)}%</td></tr>`).join('')}
+                            <tr style="background:#eef5e9; font-weight:bold;"><td>মোট</td><td>${exam.total}</td><td>${exam.fullMark}</td><td>${exam.percent}%</td></tr>
+                            <tr><td colspan="4" style="text-align:center;"><span class="status-badge ${exam.result === 'Pass' ? 'pass' : 'fail'}">${exam.result === 'Pass' ? 'পাস' : 'ফেল'}</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    // Sample data initialization for demo
+    async function initSampleData() {
+        const sampleExams = ["Half Yearly Exam", "Final Exam"];
+        for (let exam of sampleExams) {
+            const path = `results/Class_Nine_Science_${exam}`.replace(/\s+/g, '_');
+            const snapshot = await db.ref(path).once('value');
+            if (!snapshot.exists()) {
+                await db.ref(path).set({
+                    subjects: ["বাংলা", "ইংরেজি", "গণিত", "বিজ্ঞান", "ইতিহাস"],
+                    students: ["আরাফা সুলতানা", "তামিম হাসান", "নুজহাত জাহান"],
+                    marks: {
+                        "0_0": 85, "0_1": 78, "0_2": 92, "0_3": 88, "0_4": 79,
+                        "1_0": 45, "1_1": 52, "1_2": 30, "1_3": 48, "1_4": 55,
+                        "2_0": 95, "2_1": 88, "2_2": 94, "2_3": 91, "2_4": 89
+                    },
+                    fms: { 0: 100, 1: 100, 2: 100, 3: 100, 4: 100 }
+                });
+            }
+        }
+    }
+    initSampleData();
+
+    // Tab switching
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(btn.dataset.tab + 'Tab').classList.add('active');
+            if (btn.dataset.tab === 'result') loadAllExamResults();
+            if (btn.dataset.tab === 'profile') renderProfileView();
+        });
+    });
+
+    // Check if already logged in
+    auth.onAuthStateChanged(async (user) => {
+        if (user) {
+            currentUser = {
+                uid: user.uid,
+                email: user.email,
+                name: user.displayName || user.email.split('@')[0],
+                photoURL: user.photoURL,
+                role: "student"
+            };
+            await loadStudentDataFromDB();
+            loginSuccess();
+        }
+    });
+</script>
+</body>
+</html>
