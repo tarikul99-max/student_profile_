@@ -3,561 +3,867 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Glorious Education Care | Complete Student Portal</title>
+    <title>Glorious Education Care | Complete Result Portal</title>
     
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-    
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
             font-family: 'Segoe UI', 'Noto Sans Bengali', sans-serif;
             background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
             min-height: 100vh;
+            padding: 20px;
         }
         
-        /* Login Overlay */
-        .login-overlay {
-            position: fixed;
+        .container {
+            max-width: 1400px;
+            width: 100%;
+            margin: auto;
+            background: #fff;
+            border-radius: 28px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .excel-header {
+            background: linear-gradient(123deg, #276e2c, #59ad5e, #5eac40, #629d3b);
+            padding: 20px 25px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .excel-header::before {
+            content: '';
+            position: absolute;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(8px);
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 40%, rgba(255,255,255,0.15) 0%, rgba(46,125,50,0.05) 100%);
+            pointer-events: none;
         }
         
-        .login-card {
-            background: white;
-            border-radius: 40px;
-            padding: 40px;
-            width: 90%;
-            max-width: 460px;
-            text-align: center;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
-        }
-        
-        .login-logo {
-            width: 100px;
-            height: 100px;
-            background: linear-gradient(135deg, #1b5e20, #4caf50);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-        
-        .login-logo img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .role-switch {
-            display: flex;
-            gap: 15px;
-            margin: 20px 0;
-            justify-content: center;
-        }
-        
-        .role-btn {
-            padding: 8px 25px;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            font-weight: bold;
-            background: #f0f0f0;
-            transition: 0.2s;
-        }
-        
-        .role-btn.active {
-            background: #1b5e20;
-            color: white;
-        }
-        
-        .login-input {
-            width: 100%;
-            padding: 14px 18px;
-            margin: 12px 0;
-            border: 2px solid #e0e0e0;
-            border-radius: 50px;
-            font-size: 15px;
-        }
-        
-        .login-btn {
-            width: 100%;
-            padding: 14px;
-            background: #1b5e20;
-            color: white;
-            border: none;
-            border-radius: 50px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        
-        .login-btn:hover {
-            background: #0f4a12;
-            transform: scale(1.02);
-        }
-        
-        .error-msg { color: #d32f2f; font-size: 12px; margin-top: 10px; }
-        
-        /* Main App */
-        .main-app {
-            display: none;
-            max-width: 1400px;
-            margin: 0 auto;
-            background: #fff;
-            border-radius: 32px;
-            overflow: hidden;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-        }
-        
-        .main-header {
-            background: linear-gradient(135deg, #1b5e20, #2e7d32, #4caf50);
-            padding: 20px 30px;
-            color: white;
-        }
-        
-        .header-container {
+        .header-content {
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 20px;
+            gap: 15px;
+            position: relative;
+            z-index: 1;
         }
         
-        .logo {
-            width: 80px;
-            height: 80px;
-            background: #ffd966;
-            border-radius: 50%;
+        .header-left {
             display: flex;
             align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            transition: transform 0.3s;
+            gap: 15px;
+            flex-wrap: wrap;
         }
         
-        .logo:hover {
-            transform: scale(1.05);
-        }
-        
-        .logo img {
-            width: 100%;
-            height: 100%;
+        .header-logo {
+            height: 70px;
+            width: 70px;
+            background: white;
+            border-radius: 50%;
+            border: 2px solid #ffffff;
             object-fit: cover;
         }
         
-        .title h1 {
-            font-size: 28px;
-            letter-spacing: 1px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        .main-title-box {
+            background: linear-gradient(135deg, #0a3e0a, #1b5e20);
+            padding: 6px 20px;
+            border-radius: 0 30px 30px 30px;
         }
         
-        .title p {
-            font-size: 12px;
-            opacity: 0.95;
-            font-style: italic;
+        .main-title-box h1 {
+            margin: 0;
+            font-size: 24px;
+            display: inline;
+            color: #fafafa;
         }
         
-        .bismillah {
-            background: rgba(255,255,255,0.2);
-            padding: 8px 20px;
-            border-radius: 40px;
-            font-size: 13px;
-            font-weight: 600;
+        .main-title-box span {
+            font-size: 16px;
+            margin-left: 8px;
+            color: #e8f5e9;
         }
         
         .header-right-address {
             text-align: right;
             font-size: 11px;
-            font-weight: 500;
-            background: rgba(0,0,0,0.2);
-            padding: 8px 16px;
+            background: rgba(0,0,0,0.25);
+            padding: 8px 15px;
             border-radius: 20px;
         }
         
-        .user-bar {
-            background: #eef5e9;
-            padding: 10px 25px;
+        .bismillah {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            transform: translateY(-4px);
+            background: rgba(193, 212, 169, 0.2);
+            display: inline-block;
+            padding: 4px 25px;
+            border-radius: 5px;
+        }
+        
+        .info-bar {
+            background: linear-gradient(95deg, #2e7d32, #388e3c, #4caf50);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: center;
+            gap: 35px;
+            flex-wrap: wrap;
+            font-weight: bold;
+            color: white;
+            border-bottom: 2px solid #81c784;
+        }
+        
+        .info-bar i { color: #c8e6c9; }
+        
+        .student-login-section {
+            background: linear-gradient(135deg, #ffffff, #f1f8e9);
+            padding: 25px;
+            margin: 20px;
+            border-radius: 24px;
+            text-align: center;
+            border: 2px solid #81c784;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+        }
+        
+        .student-login-section h3 { color: #1b5e20; margin-bottom: 15px; }
+        
+        .login-group {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+        
+        .student-login-input {
+            padding: 12px 20px;
+            border: 2px solid #b0e0b1;
+            border-radius: 50px;
+            width: 220px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .student-login-input:focus {
+            border-color: #2e7d32;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(46,125,50,0.2);
+        }
+        
+        .student-login-btn {
+            background: #2e7d32;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .student-login-btn:hover {
+            transform: translateY(-2px);
+            background: #1b5e20;
+            box-shadow: 0 5px 15px rgba(46,125,50,0.3);
+        }
+        
+        .student-info-card {
+            background: #f1f8e9;
+            padding: 20px;
+            margin: 20px;
+            border-radius: 24px;
+            display: none;
+            border-left: 8px solid #2e7d32;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+        }
+        
+        .student-result-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
+            margin-bottom: 15px;
         }
         
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .logout-btn {
-            background: #d32f2f;
+        .logout-student-btn {
+            background: #ff9800;
             color: white;
             border: none;
             padding: 8px 20px;
             border-radius: 30px;
             cursor: pointer;
-            transition: 0.2s;
+            transition: all 0.3s ease;
         }
         
-        .logout-btn:hover {
-            background: #b71c1c;
-        }
-        
-        .nav-tabs {
-            background: white;
-            border-bottom: 2px solid #e0e0e0;
-            display: flex;
-            gap: 5px;
-            padding: 0 20px;
-            flex-wrap: wrap;
-        }
-        
-        .tab-btn {
-            padding: 14px 28px;
-            background: none;
-            border: none;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        
-        .tab-btn:hover {
-            color: #1b5e20;
-        }
-        
-        .tab-btn.active {
-            color: #1b5e20;
-            border-bottom: 3px solid #1b5e20;
-        }
-        
-        .tab-content { display: none; padding: 25px; }
-        .tab-content.active { display: block; }
-        
-        /* Admin Only */
-        .admin-only { display: none; }
-        .is-admin .admin-only { display: inline-flex; }
-        
-        /* Controls Panel */
-        .controls-panel {
-            background: #f9fbf7;
-            padding: 15px;
-            border-radius: 20px;
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-bottom: 20px;
-            align-items: center;
-        }
-        
-        select, input {
-            padding: 8px 14px;
-            border: 1px solid #bdd4b0;
-            border-radius: 40px;
-            font-weight: 500;
-            font-family: inherit;
-        }
-        
-        button {
-            padding: 8px 18px;
-            border-radius: 40px;
-            border: none;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        
-        button:hover {
+        .logout-student-btn:hover {
+            background: #f57c00;
             transform: translateY(-2px);
-        }
-        
-        .btn-add { background: #2e7d32; color: white; }
-        .btn-print { background: #1b5e20; color: white; }
-        .btn-sync { background: #6a1b9a; color: white; }
-        
-        .profile-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-        }
-        
-        .profile-field {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        
-        .profile-field label { font-weight: 600; color: #1b5e20; }
-        .profile-field input, .profile-field select, .profile-field textarea {
-            padding: 10px 14px;
-            border: 1px solid #c8e0bc;
-            border-radius: 16px;
-            font-family: inherit;
-        }
-        
-        .view-value {
-            background: #f5f9f0;
-            padding: 10px 14px;
-            border-radius: 16px;
-        }
-        
-        .edit-toggle-btn, .save-profile-btn {
-            background: #1b5e20;
-            color: white;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 30px;
-            cursor: pointer;
         }
         
         .exam-card {
             background: white;
-            border-radius: 24px;
-            margin-bottom: 20px;
-            border: 1px solid #e0e8e0;
+            border-radius: 20px;
+            margin-bottom: 25px;
             overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border: 1px solid #c8e6c9;
         }
         
-        .exam-card-header {
-            background: linear-gradient(135deg, #1b5e20, #2e7d32);
+        .exam-title {
+            background: linear-gradient(95deg, #2e7d32, #388e3c);
             color: white;
-            padding: 15px 25px;
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
+            padding: 12px 20px;
+            font-size: 18px;
+            font-weight: bold;
         }
         
-        .exam-table {
+        .subject-table {
             width: 100%;
             border-collapse: collapse;
         }
         
-        .exam-table th, .exam-table td {
-            border: 1px solid #cde2c0;
-            padding: 10px;
+        .subject-table th,
+        .subject-table td {
+            padding: 10px 12px;
             text-align: center;
+            border-bottom: 1px solid #e0e0e0;
         }
         
-        .exam-table th { background: #e8f5e9; }
+        .subject-table th {
+            background: #f5f5f5;
+            color: #2e7d32;
+            font-weight: bold;
+        }
+        
+        .subject-table tr:hover {
+            background: #f1f8e9;
+        }
+        
+        .exam-summary {
+            background: #e8f5e9;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+            border-top: 2px solid #c8e6c9;
+            font-weight: bold;
+        }
+        
+        .summary-item {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        
+        .summary-label {
+            color: #1b5e20;
+        }
+        
+        .summary-value {
+            color: #2e7d32;
+            font-size: 16px;
+        }
+        
+        .gpa-badge-sm {
+            background: #c8e6c9;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: bold;
+            color: #1b5e20;
+        }
         
         .status-badge {
             padding: 4px 10px;
             border-radius: 30px;
-            font-size: 10px;
+            font-size: 11px;
             font-weight: bold;
+            display: inline-block;
         }
+        
         .pass { background: #c8e6c9; color: #1b5e20; }
         .fail { background: #ffcdd2; color: #b71c1c; }
         
-        .table-wrap {
-            overflow-x: auto;
+        #topHoldersBox {
+            display: none;
+            margin: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, #ffffff, #f1f8e9);
+            border-radius: 24px;
+            border-left: 8px solid #2e7d32;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
         }
         
-        .footer {
-            background: #1b5e20;
-            color: white;
-            padding: 30px;
+        .top-title {
+            font-weight: bold;
+            color: #1b5e20;
+            font-size: 18px;
+            margin-bottom: 15px;
         }
         
-        .footer-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px,1fr));
+        .top-list-container {
+            display: flex;
+            justify-content: space-between;
             gap: 20px;
+            flex-wrap: wrap;
         }
         
-        .footer-section h4 {
-            margin-bottom: 12px;
+        .merit-column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
         
-        .footer-section p {
+        .rank-item {
+            background: white;
+            padding: 10px 18px;
+            border-radius: 40px;
+            display: flex;
+            justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid #c8e6c9;
+        }
+        
+        .controls-panel {
+            background: #faf5e8;
+            padding: 15px 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            border-bottom: 1px solid #c8e6c9;
+        }
+        
+        .show-hide-box {
+            background: #e8f5e9;
+            border: 1px solid #c8e6c9;
+            padding: 5px 12px;
+            border-radius: 30px;
+            display: flex;
+            gap: 12px;
             font-size: 12px;
-            opacity: 0.9;
-            line-height: 1.5;
+            font-weight: bold;
         }
         
-        .copyright {
-            text-align: center;
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid rgba(255,255,255,0.2);
-            font-size: 12px;
+        select, input {
+            padding: 6px 12px;
+            border: 1px solid #c8e6c9;
+            border-radius: 30px;
+            font-weight: 500;
+            background: white;
         }
         
+        button {
+            padding: 7px 15px;
+            border-radius: 30px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover { transform: translateY(-2px); }
+        
+        .btn-add { background: #2e7d32; color: white; }
+        .btn-print { background: #1b5e20; color: white; }
+        .btn-sync { background: #6a1b9a; color: white; }
+        .btn-login { background: #37474f; color: white; }
+        .btn-remove { background: #d32f2f; color: white; }
+        .btn-edit { background: #f39c12; color: white; }
+        .btn-scan { background: #0288d1; color: white; padding: 4px 10px; font-size: 11px; }
+        .admin-only { display: none; }
+        .is-admin .admin-only { display: inline-flex; }
+        
+        .scan-container {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-left: 8px;
+        }
+        
+        .table-wrap { padding: 20px; overflow-x: auto; background: #ffffff; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; border-radius: 16px; overflow: hidden; }
+        th, td { border: 1px solid #c8e6c9; padding: 10px 8px; text-align: center; }
+        th { background: linear-gradient(95deg, #2e7d32, #388e3c); color: white; font-weight: 700; padding: 12px 8px; }
+        
+        th:nth-child(2), td:nth-child(2) {
+            position: sticky;
+            left: 0;
+            background: #fff8e7 !important;
+            z-index: 2;
+            text-align: left;
+            min-width: 220px;
+            border-left: 3px solid #81c784;
+            border-right: 2px solid #81c784;
+        }
+        th:nth-child(2) { background: #2e7d32 !important; color: white; }
+        
+        .fm-input { width: 45px; padding: 3px; text-align: center; border: 2px solid #2e7d32; border-radius: 8px; }
+        .mark-input { width: 60px; text-align: center; border: 1px solid #c8e6c9; border-radius: 8px; padding: 5px; }
+        .stu-name-input { width: 100%; border: none; background: transparent; font-weight: 600; padding: 4px; outline: none; max-width: 220px; font-size: 11px; }
+        .gpa-badge { padding: 4px 8px; border-radius: 20px; font-size: 10px; font-weight: bold; display: inline-block; background: #e8f5e9; color: #1b5e20; border: 1px solid #81c784; }
+        .btn-del { color: #d32f2f; cursor: pointer; font-weight: bold; display: none; margin-left: 6px; font-size: 14px; background: transparent; padding: 0 4px; }
+        .is-admin .btn-del { display: inline-block; }
+        .footer { background: linear-gradient(95deg, #1b5e20, #2e7d32); color: white; padding: 25px; text-align: center; font-size: 12px; }
+        .group-disabled { opacity: 0.6; background: #f5f5f5; pointer-events: none; }
+
+
+
+
+
+        @media print {
+    @page {
+        size: A4;
+        margin: 8mm 5mm;
+    }
+    
+    body {
+        background: white;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .container {
+        box-shadow: none;
+        border-radius: 0;
+        max-width: 100%;
+        margin: 0;
+        padding: 0;
+    }
+    
+    /* সব কন্ট্রোল লুকান */
+    .controls-panel,
+    .btn-login,
+    .admin-only,
+    .show-hide-box,
+    .student-login-section,
+    .info-bar button,
+    .btn-print,
+    .btn-scan,
+    .btn-add,
+    .btn-sync,
+    .btn-edit,
+    .btn-remove,
+    .btn-del,
+    .scan-container,
+    #studentLoginSection,
+    .logout-student-btn,
+    .student-login-btn {
+        display: none !important;
+    }
+    
+    .student-info-card {
+        display: block !important;
+        background: white;
+        margin: 0;
+        padding: 5px;
+        border: 1px solid #ddd;
+    }
+    
+    .exam-card {
+        break-inside: avoid;
+        page-break-inside: avoid;
+        border: 1px solid #ccc;
+        margin-bottom: 15px;
+    }
+    
+    .table-wrap {
+        overflow: visible !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
+    /* টেবিল স্টাইল */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 8px;
+        table-layout: fixed;
+    }
+    
+    th, td {
+        border: 1px solid #000 !important;
+        padding: 4px 2px;
+        text-align: center;
+        word-break: break-word;
+        overflow: hidden;
+    }
+    
+    th {
+        background: #f0f0f0 !important;
+        color: black !important;
+        font-weight: bold;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+    
+    /* রোল নম্বর কলাম */
+    th:nth-child(1), td:nth-child(1) {
+        width: 5% !important;
+        min-width: 22px !important;
+        font-size: 7px;
+    }
+    
+    /* স্টুডেন্ট নেম কলাম */
+    th:nth-child(2), td:nth-child(2) {
+        width: 11% !important;
+        min-width: 65px !important;
+        max-width: 75px !important;
+        text-align: left;
+        font-size: 7px;
+        padding: 3px 2px;
+        word-break: break-word;
+        position: static !important;
+        background: white !important;
+    }
+    
+    /* সাবজেক্ট কলাম - FM বক্স বড় করা হয়েছে */
+    th:nth-child(n+3):nth-child(-n+12), 
+    td:nth-child(n+3):nth-child(-n+12) {
+        width: auto !important;
+        min-width: 52px !important;
+    }
+    
+    /* FM ইনপুট বক্স বড় করা */
+    th .fm-input {
+        width: 35px !important;
+        min-width: 30px !important;
+        font-size: 8px !important;
+        display: inline-block;
+        padding: 1.5px 2px !important;
+        margin-top: 3px !important;
+        border: 1px solid #999 !important;
+        background: rgb(220, 198, 198) !important;
+    }
+    
+    /* মার্ক ইনপুট বক্স */
+    .mark-input {
+        width: 38px !important;
+        min-width: 32px !important;
+        font-size: 8px !important;
+        padding: 2px 2px !important;
+        text-align: center;
+    }
+    
+    /* টোটাল, %, GPA, রেজাল্ট, র্যাঙ্ক কলাম */
+    .cell-total,
+    .cell-pct,
+    .cell-gpa,
+    .cell-res,
+    .cell-pos {
+        display: table-cell !important;
+        width: 6% !important;
+        min-width: 38px !important;
+    }
+    
+    td.r-total,
+    td.r-pct,
+    td.r-gpa,
+    td.r-res,
+    td.r-pos {
+        display: table-cell !important;
+        font-size: 7.5px;
+    }
+    
+    /* ইনপুট ফিল্ড টেক্সটে কনভার্ট */
+    .stu-name-input,
+    .mark-input,
+    .fm-input {
+        border: none !important;
+        background: transparent !important;
+        font-weight: normal;
+    }
+    
+    .stu-name-input {
+        width: 100% !important;
+        font-size: 8px;
+        padding: 0 !important;
+        text-align: left;
+    }
+    
+    .gpa-badge {
+        background: #9fdea9 !important;
+        border: 1px solid #fffafa !important;
+        padding: 1px 2px !important;
+        font-size: 6.5px !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+    
+    .status-badge {
+        padding: 1px 2px !important;
+        font-size: 6.5px !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+    
+    .pass { background: #c8e6c9 !important; }
+    .fail { background: #ffcdd2 !important; }
+    
+    .footer {
+        margin-top: 10px;
+        background: #f0f0f0 !important;
+        color: black !important;
+        font-size: 7px !important;
+        padding: 5px !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+    
+    .excel-header {
+        background: #5dac61 !important;
+        padding: 4px !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+    
+    .header-content {
+        gap: 4px !important;
+    }
+    
+    .header-left {
+        gap: 6px !important;
+    }
+    
+    .header-logo {
+        height: 30px !important;
+        width: 30px !important;
+    }
+    
+    .main-title-box h1 {
+        font-size: 11px !important;
+    }
+    
+    .main-title-box span {
+        font-size: 8px !important;
+    }
+    
+    .info-bar {
+        background: #2e7d32 !important;
+        padding: 3px !important;
+        font-size: 7px !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+    
+    .info-bar span {
+        font-size: 7px !important;
+    }
+    
+    #topHoldersBox {
+        display: block !important;
+        border: 1px solid #ccc;
+        break-inside: avoid;
+        margin: 5px !important;
+        padding: 5px !important;
+    }
+    
+    .rank-item {
+        padding: 2px 4px !important;
+        font-size: 7px !important;
+    }
+    
+    .top-title {
+        font-size: 9px !important;
+    }
+    
+    .exam-card {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+    
+    thead {
+        display: table-header-group;
+    }
+    
+    /* সাবজেক্ট হেডার - FM সহ */
+    th span {
+        font-size: 7px !important;
+        display: block;
+        line-height: 1.2;
+        white-space: normal;
+        word-break: break-word;
+        margin-bottom: 2px;
+    }
+    
+    .header-right-address {
+        font-size: 5.5px !important;
+        padding: 2px 4px !important;
+    }
+    
+    .bismillah {
+        font-size: 7px !important;
+        margin-bottom: 2px !important;
+        padding: 2px 8px !important;
+    }
+    
+    .subject-table th,
+    .subject-table td {
+        padding: 3px 4px !important;
+        font-size: 8px !important;
+    }
+    
+    .exam-summary {
+        padding: 5px 8px !important;
+    }
+    
+    .summary-item {
+        font-size: 8px !important;
+    }
+    
+    .summary-value {
+        font-size: 8px !important;
+    }
+    
+    /* বেশি সাবজেক্ট থাকলে ছোট হবে */
+    table {
+        font-size: 7px;
+    }
+    
+    th, td {
+        padding: 3px 1px;
+    }
+}
+
+
         @media (max-width: 768px) {
-            .tab-btn { padding: 10px 16px; font-size: 12px; }
-            .tab-content { padding: 15px; }
-            .controls-panel { justify-content: center; }
-            .header-container { justify-content: center; text-align: center; }
+            body { padding: 10px; }
+            .student-login-input { width: 100%; }
+            .login-group { flex-direction: column; align-items: center; }
         }
     </style>
 </head>
-<body>
+<body id="mainBody">
 
-<!-- Login Overlay -->
-<div id="loginOverlay" class="login-overlay">
-    <div class="login-card">
-        <div class="login-logo">
-            <img id="loginLogo" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23ffd966'/%3E%3Ctext x='50' y='68' font-size='40' text-anchor='middle' fill='%231b5e20' font-weight='bold'%3EG%3C/text%3E%3C/svg%3E" alt="Logo">
+<div class="container">
+    <div class="excel-header">
+        <div style="text-align: center;">
+            <div class="bismillah">বিসমিল্লাহির রাহমানির রাহিম </div>
         </div>
-        <h2>GLORIOUS Education Care</h2>
-        <p>ছাত্র ও প্রশাসন পোর্টালে স্বাগতম</p>
-        
-        <div class="role-switch">
-            <button class="role-btn active" data-role="student">👨‍🎓 ছাত্র</button>
-            <button class="role-btn" data-role="admin">👨‍💼 অ্যাডমিন</button>
-        </div>
-        
-        <input type="text" id="loginId" class="login-input" placeholder="ছাত্র আইডি / অ্যাডমিন ইমেল">
-        <input type="password" id="loginPassword" class="login-input" placeholder="পাসওয়ার্ড">
-        <button id="loginBtn" class="login-btn"><i class="fas fa-sign-in-alt"></i> লগইন</button>
-        <div id="loginError" class="error-msg"></div>
-        
-        <div style="margin-top: 20px; font-size: 12px; color: #666; text-align: left; background: #f5f5f5; padding: 12px; border-radius: 16px;">
-            <i class="fas fa-info-circle"></i> <strong>ডেমো অ্যাকাউন্ট:</strong><br>
-            🧑‍🎓 <strong>ছাত্র:</strong> STU1001 / student123<br>
-            👨‍💼 <strong>অ্যাডমিন:</strong> admin@glorious.edu.bd / #$t
-        </div>
-    </div>
-</div>
-
-<!-- Main App -->
-<div id="mainApp" class="main-app">
-    <div class="main-header">
-        <div class="header-container">
-            <div class="logo-area" style="display: flex; gap: 15px; align-items: center;">
-                <div class="logo">
-                    <img id="headerLogo" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23ffd966'/%3E%3Ctext x='50' y='68' font-size='40' text-anchor='middle' fill='%231b5e20' font-weight='bold'%3EG%3C/text%3E%3C/svg%3E" alt="Glorious Logo">
-                </div>
-                <div class="title">
-                    <h1>GLORIOUS Education Care</h1>
-                    <p><i class="fas fa-leaf"></i> সৃজনশীল প্রতিভার অন্বেষণে... <i class="fas fa-leaf"></i></p>
+        <div class="header-content">
+            <div class="header-left">
+                <img src="logo.jpeg" alt="Logo" class="header-logo" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%23ffd966\'/%3E%3Ctext x=\'50\' y=\'68\' font-size=\'40\' text-anchor=\'middle\' fill=\'%231b5e20\'%3EG%3C/text%3E%3C/svg%3E'">
+                <div>
+                    <p style="margin:0; font-weight:bold; font-size:12px;">সৃজনশীল প্রতিভার অন্বেষণে..........</p>
+                    <div class="main-title-box"><h1>GLORIOUS</h1><span>Education Care</span></div>
                 </div>
             </div>
-            <div class="bismillah">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
             <div class="header-right-address">
-                <i class="fas fa-map-marker-alt"></i> পেকুয়া, কক্সবাজার<br>
-                📞 ০১৬৬৮-৫৩৭২২, ০১৭৫৬১৭৯৯৬
+                <i class="fas fa-map-marker-alt"></i> ফরিদুল হক চৌধুরী মার্কেট (২য় তলা),<br>
+                পেকুয়া চৌমুহনীর পশ্চিম পার্শ্বে, পেকুয়া।<br>
+                📞 ০১৮৬৮-৬৫৩৭২২
             </div>
         </div>
     </div>
-
-    <div class="user-bar">
-        <div class="user-info">
-            <i class="fas fa-user-circle" style="font-size: 32px; color: #1b5e20;"></i>
-            <span id="loggedUserName" style="font-weight: bold;"></span>
-            <span id="userRoleBadge" style="background:#ffd966; padding:2px 10px; border-radius:20px; font-size:11px;"></span>
-        </div>
-        <button id="logoutBtn" class="logout-btn"><i class="fas fa-sign-out-alt"></i> লগআউট</button>
+    
+    <div class="info-bar">
+        <span><i class="fas fa-file-alt"></i> Exam: <strong id="vExam">-</strong></span>
+        <span><i class="fas fa-graduation-cap"></i> Class: <strong id="vClass">-</strong></span>
+        <span><i class="fas fa-layer-group"></i> Group: <strong id="vGroup">-</strong></span>
+        <button class="btn-login" id="loginBtn" onclick="toggleAdmin()"><i class="fas fa-lock"></i> Admin Login</button>
+        <span id="syncStat" style="font-size: 11px; color: #c8e6c9;"><i class="fas fa-cloud-upload-alt"></i> Online</span>
     </div>
-
-    <div class="nav-tabs">
-        <button class="tab-btn active" data-tab="profile"><i class="fas fa-user-edit"></i> আমার প্রোফাইল</button>
-        <button class="tab-btn" data-tab="result"><i class="fas fa-chart-line"></i> আমার রেজাল্ট</button>
-        <button id="adminTabBtn" class="tab-btn admin-only" data-tab="admin"><i class="fas fa-cog"></i> অ্যাডমিন প্যানেল</button>
-    </div>
-
-    <!-- Profile Tab -->
-    <div id="profileTab" class="tab-content active">
-        <div style="background: white; border-radius: 24px; padding: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
-                <h2 style="color: #1b5e20;"><i class="fas fa-id-card"></i> আমার ব্যক্তিগত তথ্য</h2>
-                <button id="enableEditBtn" class="edit-toggle-btn"><i class="fas fa-edit"></i> সম্পাদনা করুন</button>
-            </div>
-            <div id="profileViewMode">
-                <div class="profile-grid" id="profileViewGrid"></div>
-            </div>
-            <div id="profileEditMode" style="display: none;">
-                <div class="profile-grid">
-                    <div class="profile-field"><label><i class="fas fa-user"></i> পূর্ণ নাম</label><input type="text" id="editName"></div>
-                    <div class="profile-field"><label><i class="fas fa-father"></i> পিতার নাম</label><input type="text" id="editFather"></div>
-                    <div class="profile-field"><label><i class="fas fa-mother"></i> মাতার নাম</label><input type="text" id="editMother"></div>
-                    <div class="profile-field"><label><i class="fas fa-calendar-alt"></i> জন্ম তারিখ</label><input type="date" id="editDob"></div>
-                    <div class="profile-field"><label><i class="fas fa-phone"></i> মোবাইল</label><input type="tel" id="editPhone"></div>
-                    <div class="profile-field"><label><i class="fas fa-tint"></i> রক্তের গ্রুপ</label>
-                        <select id="editBlood"><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>O+</option><option>O-</option><option>AB+</option><option>AB-</option></select>
-                    </div>
-                    <div class="profile-field"><label><i class="fas fa-map-marker-alt"></i> ঠিকানা</label><textarea id="editAddress" rows="2"></textarea></div>
-                    <div class="profile-field"><label><i class="fas fa-graduation-cap"></i> শ্রেণি</label>
-                        <select id="editClass"><option>Class Five</option><option>Class Six</option><option>Class Seven</option><option>Class Eight</option><option selected>Class Nine</option><option>Class Ten</option></select>
-                    </div>
-                    <div class="profile-field"><label><i class="fas fa-layer-group"></i> গ্রুপ</label>
-                        <select id="editGroup"><option>Science</option><option>Commerce</option><option>Arts</option></select>
-                    </div>
-                </div>
-                <button id="saveProfileBtn" class="save-profile-btn" style="width: 100%; margin-top: 20px;"><i class="fas fa-save"></i> সংরক্ষণ করুন</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Result Tab -->
-    <div id="resultTab" class="tab-content">
-        <div id="examCardsContainer" style="padding: 10px;"></div>
-    </div>
-
-    <!-- Admin Tab -->
-    <div id="adminTab" class="tab-content">
-        <div class="controls-panel">
-            <select id="classSelect">
+    
+    <div id="studentLoginSection" class="student-login-section">
+        <h3><i class="fas fa-user-graduate"></i> 👨‍🎓 Student Login </h3>
+        <p style="color:#2e7d32; font-size:13px; margin-bottom:15px;">Enter Roll, Name & Class to see detailed marks of all exams</p>
+        <div class="login-group">
+            <input type="number" id="studentRoll" class="student-login-input" placeholder="Roll Number / রোল নম্বর">
+            <input type="text" id="studentName" class="student-login-input" placeholder="Full Name / পূর্ণ নাম" maxlength="25">
+            <select id="studentClass" class="student-login-input" style="width:180px;" onchange="toggleGroupForStudent()">
+                <option value="">Select Class </option>
                 <option>Class Five</option><option>Class Six</option><option>Class Seven</option>
-                <option>Class Eight</option><option selected>Class Nine</option><option>Class Ten</option>
+                <option>Class Eight</option><option>Class Nine</option><option>Class Ten</option>
+                <option>SSC Special Batch</option>
             </select>
-            <select id="groupSelect"><option>Science</option><option>Commerce</option><option>Arts</option></select>
-            <select id="examSelect"></select>
-            <input type="text" id="newExamName" placeholder="নতুন পরীক্ষা" style="width:110px">
-            <button class="btn-add" onclick="addNewExam()"><i class="fas fa-plus"></i> Exam</button>
-            <input type="text" id="newSubject" placeholder="বিষয়" style="width:70px">
-            <button class="btn-add" onclick="addSubject()"><i class="fas fa-book"></i> +Sub</button>
-            <input type="text" id="newStudentName" placeholder="শিক্ষার্থীর নাম" style="width:120px">
-            <button class="btn-add" onclick="addStudent()"><i class="fas fa-user-plus"></i> +Student</button>
-            <button class="btn-sync" onclick="syncToAllExams()"><i class="fas fa-sync-alt"></i> সিঙ্ক</button>
-            <button class="btn-sync" onclick="saveAllData()"><i class="fas fa-save"></i> সংরক্ষণ</button>
-            <button class="btn-print" onclick="window.print()"><i class="fas fa-print"></i> প্রিন্ট</button>
+            <select id="studentGroup" class="student-login-input" style="width:140px;">
+                <option value="Science"> বিজ্ঞান</option>
+                <option value="Commerce"> বাণিজ্য</option>
+                <option value="Arts"> মানবিক</option>
+            </select>
         </div>
-        <div class="table-wrap">
-            <table id="adminTable" style="width:100%; border-collapse: collapse;">
-                <thead id="adminTableHead"></thead>
-                <tbody id="adminTableBody"></tbody>
-            </table>
-        </div>
+        <button class="student-login-btn" onclick="studentLogin()"><i class="fas fa-sign-in-alt"></i> View Detailed Result / বিস্তারিত রেজাল্ট দেখুন</button>
     </div>
-
+    
+    <div id="studentInfoCard" class="student-info-card">
+        <div class="student-result-header">
+            <h3><i class="fas fa-id-card"></i> 📋 বিস্তারিত ফলাফল</h3>
+            <button class="logout-student-btn" onclick="studentLogout()"><i class="fas fa-sign-out-alt"></i> Logout / লগআউট</button>
+        </div>
+        <div id="studentOwnResult"></div>
+    </div>
+    
+    <div id="topHoldersBox">
+        <div class="top-title"><i class="fas fa-trophy"></i> 🏆 মেধা তালিকা (Top 10)</div>
+        <div class="top-list-container" id="topList"></div>
+    </div>
+    
+    <div class="controls-panel" id="adminControlsPanel">
+        <select id="cSel" onchange="changeClass()">
+            <option>Class Five</option><option>Class Six</option><option>Class Seven</option>
+            <option>Class Eight</option><option>Class Nine</option><option>Class Ten</option>
+            <option>SSC Special Batch</option>
+        </select>
+        <select id="gSel" onchange="changeGroup()">
+            <option value="Science"> বিজ্ঞান</option>
+            <option value="Commerce"> বাণিজ্য</option>
+            <option value="Arts"> মানবিক</option>
+        </select>
+        <div style="display: flex; gap: 5px; align-items: center;">
+            <select id="eSel" onchange="updateInfo()"></select>
+            <button class="btn-edit admin-only" onclick="editExamNameInline()"><i class="fas fa-edit"></i> Edit</button>
+            <button class="btn-remove admin-only" onclick="removeExam()"><i class="fas fa-trash"></i></button>
+        </div>
+        <div class="show-hide-box">
+            <label><input type="checkbox" id="chkTotal" checked onchange="toggleCols()"> Total</label>
+            <label><input type="checkbox" id="chkPct" checked onchange="toggleCols()"> %</label>
+            <label><input type="checkbox" id="chkGPA" checked onchange="toggleCols()"> GPA</label>
+            <label><input type="checkbox" id="chkRes" checked onchange="toggleCols()"> Result</label>
+            <label><input type="checkbox" id="chkPos" checked onchange="toggleCols()"> Rank</label>
+        </div>
+        <div class="admin-only">
+            <input type="text" id="examInp" placeholder="New Exam" style="width:100px">
+            <button class="btn-add" onclick="addExam()"><i class="fas fa-plus"></i> Exam</button>
+            <input type="text" id="subInp" placeholder="Subject" style="width:60px">
+            <button class="btn-add" onclick="addSub()"><i class="fas fa-book"></i> +Sub</button>
+            <input type="text" id="nameInp" placeholder="Student Name" style="width:150px" maxlength="25">
+            <button class="btn-add" onclick="addStu()"><i class="fas fa-user-plus"></i> +Student</button>
+            <button class="btn-sync" onclick="syncToAll()"><i class="fas fa-sync-alt"></i> Sync to All</button>
+            <button class="btn-sync" onclick="saveToCloud()"><i class="fas fa-save"></i> Save</button>
+        </div>
+        <button class="btn-print" onclick="window.print()"><i class="fas fa-print"></i> Print</button>
+    </div>
+    
+    <div class="table-wrap" id="resultTableWrap">
+        <table id="resTable">
+            <thead><tr id="hRow">  </tr></thead>
+            <tbody id="tBody"></tbody>
+        </table>
+    </div>
+    
     <div class="footer">
-        <div class="footer-container">
-            <div class="footer-section">
-                <h4><i class="fas fa-school"></i> GLORIOUS Education Care</h4>
-                <p>সৃজনশীল প্রতিভার অন্বেষণে নিরন্তর প্রচেষ্টায় নিয়োজিত একটি আধুনিক শিক্ষাপ্রতিষ্ঠান।</p>
-            </div>
-            <div class="footer-section">
-                <h4><i class="fas fa-map-marker-alt"></i> ঠিকানা</h4>
-                <p>পেকুয়া, কক্সবাজার<br>বাংলাদেশ</p>
-            </div>
-            <div class="footer-section">
-                <h4><i class="fas fa-phone-alt"></i> যোগাযোগ</h4>
-                <p>📞 ০১৬৬৮-৫৩৭২২, ০১৭৫৬১৭৯৯৬<br>📧 info@glorious.edu.bd</p>
-            </div>
-        </div>
-        <div class="copyright">
-            <i class="fas fa-copyright"></i> 2026 GLORIOUS Education Care. সর্বস্বত্ব সংরক্ষিত।
-        </div>
+        <p><i class="fas fa-copyright"></i> 2026 GLORIOUS Education Care | Pekua, Cox's Bazar | 📞 01868-653722</p>
     </div>
 </div>
 
@@ -570,397 +876,468 @@
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-
-    // Student Database
-    const studentsDB = {
-        "STU1001": { name: "আরাফা সুলতানা", password: "student123", class: "Class Nine", group: "Science", father: "মোঃ আব্দুল করিম", mother: "মোসা. ফাতেমা বেগম", phone: "০১৯১২৩৪৫৬৭৮", dob: "2008-03-15", blood: "O+", address: "পেকুয়া, কক্সবাজার" },
-        "STU1002": { name: "তামিম হাসান", password: "student123", class: "Class Nine", group: "Science", father: "মোঃ রফিকুল ইসলাম", mother: "মোসা. নাছিমা বেগম", phone: "০১৯১২৩৪৫৬৭৯", dob: "2008-05-20", blood: "B+", address: "পেকুয়া, কক্সবাজার" },
-        "STU1003": { name: "নুজহাত জাহান", password: "student123", class: "Class Nine", group: "Science", father: "মোঃ জাহাঙ্গীর আলম", mother: "মোসা. সালমা বেগম", phone: "০১৯১২৩৪৫৬৮০", dob: "2008-07-10", blood: "A+", address: "পেকুয়া, কক্সবাজার" }
-    };
-
-    const ADMIN_EMAIL = "admin@glorious.edu.bd";
-    const ADMIN_PASS = "#$t";
-
-    let currentUser = null;
+    
+    let subjects = [], students = [], marks = {}, fms = {};
+    let examsList = [];
     let isAdmin = false;
-    let subjects = [], students = [], marks = {}, fms = {}, examsList = ["Half Yearly Exam", "Final Exam"];
-
-    // Login Logic
-    document.querySelectorAll('.role-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            document.getElementById('loginId').placeholder = btn.dataset.role === 'admin' ? 'অ্যাডমিন ইমেল' : 'ছাত্র আইডি';
-        });
-    });
-
-    document.getElementById('loginBtn').addEventListener('click', () => {
-        const role = document.querySelector('.role-btn.active').dataset.role;
-        const id = document.getElementById('loginId').value.trim();
-        const pass = document.getElementById('loginPassword').value;
-        const errorDiv = document.getElementById('loginError');
-
-        if (role === 'admin') {
-            if (id === ADMIN_EMAIL && pass === ADMIN_PASS) {
-                isAdmin = true;
-                currentUser = { name: "অ্যাডমিন", role: "admin", email: id };
-                loginSuccess();
+    let loggedInStudent = null;
+    
+    function calculateGPA(percentage) {
+        if(percentage >= 80) return { grade: 'A+', gpa: 5.00 };
+        if(percentage >= 70) return { grade: 'A', gpa: 4.00 };
+        if(percentage >= 60) return { grade: 'A-', gpa: 3.50 };
+        if(percentage >= 50) return { grade: 'B', gpa: 3.00 };
+        if(percentage >= 40) return { grade: 'C', gpa: 2.00 };
+        if(percentage >= 33) return { grade: 'D', gpa: 1.00 };
+        return { grade: 'F', gpa: 0.00 };
+    }
+    
+    function isGroupApplicable(className) {
+        const nonGroupClasses = ["Class Five", "Class Six", "Class Seven", "Class Eight"];
+        return !nonGroupClasses.includes(className);
+    }
+    
+    function toggleGroupForStudent() {
+        const selectedClass = document.getElementById('studentClass').value;
+        const groupSelect = document.getElementById('studentGroup');
+        if(!isGroupApplicable(selectedClass) && selectedClass !== "") {
+            groupSelect.value = "General";
+            groupSelect.disabled = true;
+            groupSelect.classList.add('group-disabled');
+        } else {
+            groupSelect.disabled = false;
+            groupSelect.classList.remove('group-disabled');
+        }
+    }
+    
+    function toggleAdminGroupField() {
+        const cls = document.getElementById('cSel').value;
+        const groupSel = document.getElementById('gSel');
+        if(!isGroupApplicable(cls)) {
+            groupSel.value = "General";
+            groupSel.disabled = true;
+            groupSel.classList.add('group-disabled');
+        } else {
+            groupSel.disabled = false;
+            groupSel.classList.remove('group-disabled');
+        }
+    }
+    
+    function changeClass() {
+        toggleAdminGroupField();
+        const className = document.getElementById('cSel').value;
+        let group = document.getElementById('gSel').value;
+        if(!isGroupApplicable(className)) group = "General";
+        loadExamsForClass(className, group);
+    }
+    
+    function changeGroup() {
+        const className = document.getElementById('cSel').value;
+        let group = document.getElementById('gSel').value;
+        if(!isGroupApplicable(className)) group = "General";
+        loadExamsForClass(className, group);
+    }
+    
+    function loadExamsForClass(className, group) {
+        db.ref(`exams_list_per_class/${className}_${group}`).once('value', (snap) => {
+            examsList = snap.val() || [];
+            const eSel = document.getElementById('eSel');
+            eSel.innerHTML = examsList.map(e => `<option>${e}</option>`).join('');
+            if(examsList.length > 0) {
+                eSel.value = examsList[0];
+                updateInfo();
             } else {
-                errorDiv.innerText = "ভুল ইমেল বা পাসওয়ার্ড!";
+                subjects = []; students = []; marks = {}; fms = {};
+                render();
             }
-        } else {
-            const student = studentsDB[id];
-            if (student && student.password === pass) {
-                isAdmin = false;
-                currentUser = { ...student, id: id, role: "student" };
-                loginSuccess();
-            } else {
-                errorDiv.innerText = "ভুল ছাত্র আইডি বা পাসওয়ার্ড! (STU1001, STU1002, STU1003)";
-            }
-        }
-    });
-
-    function loginSuccess() {
-        document.getElementById('loginOverlay').style.display = 'none';
-        document.getElementById('mainApp').style.display = 'block';
-        document.getElementById('loggedUserName').innerText = currentUser.name;
-        
-        if (isAdmin) {
-            document.getElementById('userRoleBadge').innerHTML = '<i class="fas fa-user-shield"></i> অ্যাডমিন মোড';
-            document.getElementById('userRoleBadge').style.background = '#ff9800';
-            document.body.classList.add('is-admin');
-            document.getElementById('adminTabBtn').style.display = 'inline-flex';
-            loadAdminData();
-        } else {
-            document.getElementById('userRoleBadge').innerHTML = '<i class="fas fa-user-graduate"></i> ছাত্র মোড';
-            document.body.classList.remove('is-admin');
-            document.getElementById('adminTabBtn').style.display = 'none';
-        }
-        
-        renderProfile();
-        loadResults();
-    }
-
-    document.getElementById('logoutBtn').addEventListener('click', () => {
-        currentUser = null;
-        isAdmin = false;
-        document.getElementById('mainApp').style.display = 'none';
-        document.getElementById('loginOverlay').style.display = 'flex';
-        document.getElementById('loginId').value = '';
-        document.getElementById('loginPassword').value = '';
-    });
-
-    function renderProfile() {
-        const viewGrid = document.getElementById('profileViewGrid');
-        if (!currentUser) return;
-        
-        viewGrid.innerHTML = `
-            <div class="profile-field"><label><i class="fas fa-user"></i> নাম</label><div class="view-value">${currentUser.name || '-'}</div></div>
-            ${!isAdmin ? `<div class="profile-field"><label><i class="fas fa-id-badge"></i> ছাত্র আইডি</label><div class="view-value">${currentUser.id || '-'}</div></div>` : ''}
-            <div class="profile-field"><label><i class="fas fa-father"></i> পিতার নাম</label><div class="view-value">${currentUser.father || '-'}</div></div>
-            <div class="profile-field"><label><i class="fas fa-mother"></i> মাতার নাম</label><div class="view-value">${currentUser.mother || '-'}</div></div>
-            <div class="profile-field"><label><i class="fas fa-calendar-alt"></i> জন্ম তারিখ</label><div class="view-value">${currentUser.dob || '-'}</div></div>
-            <div class="profile-field"><label><i class="fas fa-phone"></i> মোবাইল</label><div class="view-value">${currentUser.phone || '-'}</div></div>
-            <div class="profile-field"><label><i class="fas fa-tint"></i> রক্তের গ্রুপ</label><div class="view-value">${currentUser.blood || '-'}</div></div>
-            <div class="profile-field"><label><i class="fas fa-map-marker-alt"></i> ঠিকানা</label><div class="view-value">${currentUser.address || '-'}</div></div>
-            <div class="profile-field"><label><i class="fas fa-graduation-cap"></i> শ্রেণি</label><div class="view-value">${currentUser.class || 'Class Nine'}</div></div>
-            <div class="profile-field"><label><i class="fas fa-layer-group"></i> গ্রুপ</label><div class="view-value">${currentUser.group || 'Science'}</div></div>
-        `;
-        
-        if (!isAdmin) {
-            document.getElementById('editName').value = currentUser.name || '';
-            document.getElementById('editFather').value = currentUser.father || '';
-            document.getElementById('editMother').value = currentUser.mother || '';
-            document.getElementById('editDob').value = currentUser.dob || '';
-            document.getElementById('editPhone').value = currentUser.phone || '';
-            document.getElementById('editBlood').value = currentUser.blood || '';
-            document.getElementById('editAddress').value = currentUser.address || '';
-            document.getElementById('editClass').value = currentUser.class || 'Class Nine';
-            document.getElementById('editGroup').value = currentUser.group || 'Science';
-        }
-    }
-
-    document.getElementById('enableEditBtn').addEventListener('click', () => {
-        if (!isAdmin) {
-            document.getElementById('profileViewMode').style.display = 'none';
-            document.getElementById('profileEditMode').style.display = 'block';
-        }
-    });
-
-    document.getElementById('saveProfileBtn').addEventListener('click', () => {
-        if (!isAdmin) {
-            currentUser.name = document.getElementById('editName').value;
-            currentUser.father = document.getElementById('editFather').value;
-            currentUser.mother = document.getElementById('editMother').value;
-            currentUser.dob = document.getElementById('editDob').value;
-            currentUser.phone = document.getElementById('editPhone').value;
-            currentUser.blood = document.getElementById('editBlood').value;
-            currentUser.address = document.getElementById('editAddress').value;
-            currentUser.class = document.getElementById('editClass').value;
-            currentUser.group = document.getElementById('editGroup').value;
-            
-            studentsDB[currentUser.id] = { ...studentsDB[currentUser.id], ...currentUser };
-            renderProfile();
-            document.getElementById('profileViewMode').style.display = 'block';
-            document.getElementById('profileEditMode').style.display = 'none';
-            document.getElementById('loggedUserName').innerText = currentUser.name;
-            alert("✅ প্রোফাইল সফলভাবে আপডেট হয়েছে!");
-            loadResults();
-        }
-    });
-
-    async function loadResults() {
-        const container = document.getElementById('examCardsContainer');
-        if (isAdmin) {
-            container.innerHTML = '<div style="text-align:center; padding:40px;"><i class="fas fa-lock"></i> অ্যাডমিন মোডে রেজাল্ট দেখার অপশন নেই</div>';
-            return;
-        }
-        
-        container.innerHTML = '<div style="text-align:center; padding:40px;"><i class="fas fa-spinner fa-spin"></i> রেজাল্ট লোড হচ্ছে...</div>';
-        
-        const exams = ["Half Yearly Exam", "Final Exam", "Monthly Test"];
-        let html = '';
-        let hasResult = false;
-        
-        for (let exam of exams) {
-            const path = `results/${currentUser.class}_${currentUser.group}_${exam}`.replace(/\s+/g, '_');
-            const snapshot = await db.ref(path).once('value');
-            const data = snapshot.val();
-            
-            if (data && data.students) {
-                const idx = data.students.findIndex(s => s === currentUser.name);
-                if (idx !== -1) {
-                    hasResult = true;
-                    let total = 0, fullMark = 0, fail = false;
-                    let marksHtml = '';
-                    const subjects = data.subjects || [];
-                    const fms = data.fms || {};
-                    
-                    subjects.forEach((sub, i) => {
-                        let mark = data.marks[`${idx}_${i}`] || 0;
-                        let fm = fms[i] || 100;
-                        total += mark;
-                        fullMark += fm;
-                        if (mark < fm * 0.33) fail = true;
-                        marksHtml += `<tr><td>${sub}</td><td>${mark}</td><td>${fm}</td><td>${Math.round((mark/fm)*100)}%</td></tr>`;
-                    });
-                    let percent = fullMark > 0 ? Math.round((total/fullMark)*100) : 0;
-                    html += `
-                        <div class="exam-card">
-                            <div class="exam-card-header">
-                                <h3><i class="fas fa-file-alt"></i> 📚 ${exam}</h3>
-                                <span class="status-badge ${fail ? 'fail' : 'pass'}">${fail ? '❌ ফেল' : '✅ পাস'}</span>
-                            </div>
-                            <div style="padding:15px; overflow-x:auto;">
-                                <table class="exam-table">
-                                    <thead>运转<th>বিষয়</th><th>প্রাপ্ত নম্বর</th><th>পূর্ণমান</th><th>শতকরা (%)</th> </thead>
-                                    <tbody>${marksHtml}<tr style="background:#e8f5e9; font-weight:bold;"><td><strong>মোট</strong> <td><strong>${total}</strong> <td><strong>${fullMark}</strong> <td><strong>${percent}%</strong> </tr></tbody>
-                                 </>
-                            </div>
-                        </div>
-                    `;
-                }
-            }
-        }
-        
-        if (!hasResult) {
-            container.innerHTML = `<div style="text-align:center; padding:50px; background:#fef9e6; border-radius:24px;">
-                <i class="fas fa-folder-open" style="font-size:48px; color:#ff9800;"></i>
-                <p style="margin-top:15px; font-size:16px;">এখনো কোনো পরীক্ষার ফলাফল প্রকাশিত হয়নি।</p>
-                <p style="font-size:12px; color:#666; margin-top:8px;">আপনার শ্রেণি: ${currentUser.class} - ${currentUser.group}</p>
-            </div>`;
-        } else {
-            container.innerHTML = html;
-        }
-    }
-
-    // Admin Functions
-    async function loadAdminData() {
-        const classVal = document.getElementById('classSelect').value;
-        const groupVal = document.getElementById('groupSelect').value;
-        const examVal = document.getElementById('examSelect').value || "Half Yearly Exam";
-        const path = `results/${classVal}_${groupVal}_${examVal}`.replace(/\s+/g, '_');
-        const snapshot = await db.ref(path).once('value');
-        const data = snapshot.val() || {};
-        
-        subjects = data.subjects || ["বাংলা", "ইংরেজি", "গণিত", "বিজ্ঞান", "ইতিহাস"];
-        students = data.students || ["আরাফা সুলতানা", "তামিম হাসান", "নুজহাত জাহান"];
-        marks = data.marks || {};
-        fms = data.fms || {};
-        if (Object.keys(fms).length === 0) subjects.forEach((_, i) => fms[i] = 100);
-        
-        renderAdminTable();
-    }
-
-    function renderAdminTable() {
-        const thead = document.getElementById('adminTableHead');
-        const tbody = document.getElementById('adminTableBody');
-        
-        let headerHtml = `<tr><th>#</th><th>শিক্ষার্থীর নাম</th>`;
-        subjects.forEach((s, i) => {
-            headerHtml += `<th>${s}<br><input type="number" value="${fms[i] || 100}" style="width:50px; padding:4px;" onchange="updateFullMark(${i}, this.value)"></th>`;
         });
-        headerHtml += `<th>মোট</th><th>%</th><th>ফলাফল</th>`;
-        headerHtml += `<th><button class="btn-add" style="padding:4px 8px;" onclick="addSubject()">+ বিষয়</button></th>`;
-        headerHtml += `</tr>`;
-        thead.innerHTML = headerHtml;
-        
-        let bodyHtml = '';
-        students.forEach((name, sidx) => {
-            let total = 0, full = 0, fail = false;
-            bodyHtml += `<tr>
-                <td>${sidx+1}</td>
-                <td><input type="text" value="${name}" style="width:120px;" onchange="updateStudentName(${sidx}, this.value)"></td>`;
-            subjects.forEach((_, subIdx) => {
-                let mark = marks[`${sidx}_${subIdx}`] || 0;
-                let fm = fms[subIdx] || 100;
-                total += mark;
-                full += fm;
-                if (mark < fm * 0.33) fail = true;
-                bodyHtml += `<td><input type="number" value="${mark}" style="width:60px;" onchange="updateMark(${sidx}, ${subIdx}, this.value)"></td>`;
+    }
+    
+    function updateInfo() {
+        const cls = document.getElementById('cSel').value;
+        document.getElementById('vClass').innerText = cls;
+        let group = document.getElementById('gSel').value;
+        if(!isGroupApplicable(cls)) group = "General";
+        document.getElementById('vGroup').innerText = group;
+        const exam = document.getElementById('eSel').value;
+        document.getElementById('vExam').innerText = exam || '-';
+        if(exam) {
+            db.ref(getPath()).on('value', (snap) => {
+                const data = snap.val() || {};
+                subjects = data.subjects || [];
+                students = data.students || [];
+                marks = data.marks || {};
+                fms = data.fms || {};
+                render();
+                updateScanDropdown();
             });
-            let percent = full > 0 ? Math.round((total/full)*100) : 0;
-            bodyHtml += `<td>${total}</td><td>${percent}%</td>
-            <td><span class="status-badge ${fail ? 'fail' : 'pass'}">${fail ? 'ফেল' : 'পাস'}</span></td>
-            <td><button class="btn-add" style="background:#d32f2f; padding:4px 8px;" onclick="deleteStudent(${sidx})"><i class="fas fa-trash"></i></button></td>
-            </tr>`;
-        });
-        bodyHtml += `<tr><td colspan="${subjects.length+3}" style="text-align:center;">
-            <button class="btn-add" onclick="addStudentRow()"><i class="fas fa-user-plus"></i> নতুন শিক্ষার্থী যোগ করুন</button>
-        </td></tr>`;
-        tbody.innerHTML = bodyHtml;
+        }
     }
-
-    window.updateMark = function(sIdx, subIdx, val) {
-        marks[`${sIdx}_${subIdx}`] = parseFloat(val) || 0;
-        renderAdminTable();
-    };
     
-    window.updateFullMark = function(subIdx, val) {
-        fms[subIdx] = parseFloat(val) || 100;
-        renderAdminTable();
-    };
+    function getPath(examName = null) {
+        const c = document.getElementById('cSel').value;
+        const e = examName || document.getElementById('eSel').value;
+        let g = document.getElementById('gSel').value;
+        if(!isGroupApplicable(c)) g = "General";
+        return `results/${c}_${g}_${e}`.replace(/\s+/g, '_');
+    }
     
-    window.updateStudentName = function(sIdx, val) {
-        students[sIdx] = val;
-        renderAdminTable();
-    };
-    
-    window.deleteStudent = function(sIdx) {
-        if (confirm("এই শিক্ষার্থীকে মুছতে চান?")) {
-            students.splice(sIdx, 1);
-            // Reorganize marks
-            let newMarks = {};
-            for (let i = 0; i < students.length; i++) {
-                subjects.forEach((_, subIdx) => {
-                    if (marks[`${sIdx}_${subIdx}`] !== undefined && i >= sIdx) {
-                        newMarks[`${i}_${subIdx}`] = marks[`${i+1}_${subIdx}`];
-                    } else if (i < sIdx) {
-                        newMarks[`${i}_${subIdx}`] = marks[`${i}_${subIdx}`];
+    function studentLogin() {
+        const roll = parseInt(document.getElementById('studentRoll').value);
+        let name = document.getElementById('studentName').value.trim();
+        const selectedClass = document.getElementById('studentClass').value;
+        let selectedGroup = document.getElementById('studentGroup').value;
+        if(name.length > 25) name = name.substring(0, 25);
+        if(!roll || !name || !selectedClass) { alert("Please enter Roll, Name & Class!"); return; }
+        if(!isGroupApplicable(selectedClass)) selectedGroup = 'General';
+        
+        db.ref(`exams_list_per_class/${selectedClass}_${selectedGroup}`).once('value', (snap) => {
+            const classExams = snap.val() || [];
+            if(classExams.length === 0) { alert("No exams found for this class!"); return; }
+            
+            let examsDetailedData = [];
+            let processed = 0;
+            
+            classExams.forEach(exam => {
+                const path = `results/${selectedClass}_${selectedGroup}_${exam}`.replace(/\s+/g, '_');
+                db.ref(path).once('value', (examSnap) => {
+                    const data = examSnap.val() || {};
+                    const studentsList = data.students || [];
+                    const studentIndex = studentsList.findIndex((s, idx) => (idx + 1) === roll && s === name);
+                    
+                    if(studentIndex !== -1) {
+                        const subjectsList = data.subjects || [];
+                        const marksData = data.marks || {};
+                        const fmsData = data.fms || {};
+                        
+                        let subjectMarks = [];
+                        let total = 0, fullMark = 0;
+                        subjectsList.forEach((sub, subIdx) => {
+                            let m = parseFloat(marksData[`${studentIndex}_${subIdx}`]) || 0;
+                            let fm = parseFloat(fmsData[subIdx]) || 100;
+                            total += m;
+                            fullMark += fm;
+                            subjectMarks.push({ name: sub, obtained: m, full: fm });
+                        });
+                        const percent = fullMark > 0 ? Math.round((total/fullMark)*100) : 0;
+                        const gpaData = calculateGPA(percent);
+                        const isFail = subjectMarks.some(s => s.obtained < (s.full * 0.33));
+                        
+                        examsDetailedData.push({
+                            examName: exam,
+                            subjects: subjectMarks,
+                            total: total,
+                            fullMark: fullMark,
+                            percent: percent,
+                            gpa: gpaData.gpa,
+                            grade: gpaData.grade,
+                            result: isFail ? 'Fail / ফেল' : 'Pass / পাস'
+                        });
+                    }
+                    
+                    processed++;
+                    if(processed === classExams.length) {
+                        if(examsDetailedData.length === 0) {
+                            alert(`No result found for ${name} (Roll ${roll}) in ${selectedClass}!`);
+                            return;
+                        }
+                        loggedInStudent = { roll, name, class: selectedClass, group: selectedGroup };
+                        displayDetailedResults(examsDetailedData);
                     }
                 });
-            }
-            marks = newMarks;
-            renderAdminTable();
-        }
-    };
-    
-    window.addStudentRow = function() {
-        const newName = prompt("নতুন শিক্ষার্থীর নাম লিখুন:");
-        if (newName) {
-            students.push(newName);
-            renderAdminTable();
-        }
-    };
-    
-    window.addSubject = function() {
-        const newSub = prompt("নতুন বিষয়ের নাম লিখুন:");
-        if (newSub) {
-            subjects.push(newSub);
-            fms[subjects.length - 1] = 100;
-            renderAdminTable();
-        }
-    };
-    
-    async function saveAllData() {
-        const classVal = document.getElementById('classSelect').value;
-        const groupVal = document.getElementById('groupSelect').value;
-        const examVal = document.getElementById('examSelect').value || "Half Yearly Exam";
-        const path = `results/${classVal}_${groupVal}_${examVal}`.replace(/\s+/g, '_');
-        await db.ref(path).set({ subjects, students, marks, fms });
-        alert("✅ ডাটা সফলভাবে সংরক্ষণ করা হয়েছে!");
-    }
-    
-    async function addNewExam() {
-        const newExam = document.getElementById('newExamName').value.trim();
-        if (newExam) {
-            examsList.push(newExam);
-            const select = document.getElementById('examSelect');
-            select.innerHTML = examsList.map(e => `<option>${e}</option>`).join('');
-            select.value = newExam;
-            document.getElementById('newExamName').value = '';
-            await loadAdminData();
-            alert(`"${newExam}" পরীক্ষা যোগ করা হয়েছে!`);
-        }
-    }
-    
-    async function syncToAllExams() {
-        if (confirm("সমস্ত পরীক্ষায় বর্তমান শিক্ষার্থী ও বিষয় কপি করতে চান?")) {
-            const classVal = document.getElementById('classSelect').value;
-            const groupVal = document.getElementById('groupSelect').value;
-            for (let exam of examsList) {
-                const path = `results/${classVal}_${groupVal}_${exam}`.replace(/\s+/g, '_');
-                await db.ref(path).set({ subjects, students, marks, fms });
-            }
-            alert("✅ সিঙ্ক সম্পন্ন হয়েছে!");
-        }
-    }
-
-    // Event Listeners
-    document.getElementById('classSelect').addEventListener('change', () => loadAdminData());
-    document.getElementById('groupSelect').addEventListener('change', () => loadAdminData());
-    document.getElementById('examSelect').addEventListener('change', () => loadAdminData());
-    
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            btn.classList.add('active');
-            document.getElementById(btn.dataset.tab + 'Tab').classList.add('active');
-            if (btn.dataset.tab === 'result' && !isAdmin) loadResults();
-            if (btn.dataset.tab === 'admin' && isAdmin) loadAdminData();
-            if (btn.dataset.tab === 'profile') renderProfile();
+            });
         });
-    });
-    
-    // Initialize exams list in admin panel
-    function initExamsList() {
-        const select = document.getElementById('examSelect');
-        select.innerHTML = examsList.map(e => `<option>${e}</option>`).join('');
     }
-    initExamsList();
     
-    // Initialize sample data in Firebase
-    async function initSampleData() {
-        const exams = ["Half Yearly Exam", "Final Exam"];
-        for (let exam of exams) {
-            const path = `results/Class_Nine_Science_${exam}`.replace(/\s+/g, '_');
-            const snap = await db.ref(path).once('value');
-            if (!snap.exists()) {
-                await db.ref(path).set({
-                    subjects: ["বাংলা", "ইংরেজি", "গণিত", "বিজ্ঞান", "ইতিহাস"],
-                    students: ["আরাফা সুলতানা", "তামিম হাসান", "নুজহাত জাহান"],
-                    marks: { 
-                        "0_0":85, "0_1":78, "0_2":92, "0_3":88, "0_4":79,
-                        "1_0":45, "1_1":52, "1_2":30, "1_3":48, "1_4":55,
-                        "2_0":95, "2_1":88, "2_2":94, "2_3":91, "2_4":89
-                    },
-                    fms: {0:100, 1:100, 2:100, 3:100, 4:100}
+    function displayDetailedResults(examsData) {
+        document.getElementById('studentLoginSection').style.display = 'none';
+        document.getElementById('studentInfoCard').style.display = 'block';
+        document.getElementById('adminControlsPanel').style.display = 'none';
+        document.getElementById('resultTableWrap').style.display = 'none';
+        document.getElementById('topHoldersBox').style.display = 'none';
+        
+        let html = `
+            <div style="background:white; border-radius:20px; padding:20px;">
+                <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:15px; margin-bottom:25px; padding:15px; background:#e8f5e9; border-radius:16px;">
+                    <p><strong><i class="fas fa-user"></i> Name / নাম:</strong> ${loggedInStudent.name}</p>
+                    <p><strong><i class="fas fa-sort-numeric-down"></i> Roll / রোল:</strong> ${loggedInStudent.roll}</p>
+                    <p><strong><i class="fas fa-graduation-cap"></i> Class / শ্রেণি:</strong> ${loggedInStudent.class}</p>
+                    <p><strong><i class="fas fa-layer-group"></i> Group / গ্রুপ:</strong> ${loggedInStudent.group}</p>
+                </div>
+        `;
+        
+        examsData.forEach((exam, idx) => {
+            html += `
+                <div class="exam-card">
+                    <div class="exam-title">
+                        <i class="fas fa-calendar-alt"></i> ${exam.examName}
+                    </div>
+                    <table class="subject-table">
+                        <thead>
+                            <tr><th>SL</th><th>Subject / বিষয়</th><th>Obtained / প্রাপ্ত</th><th>Full Marks / পূর্ণমান</th><th>Result</th> </thead>
+                        <tbody>
+            `;
+            exam.subjects.forEach((sub, subIdx) => {
+                const isPass = sub.obtained >= (sub.full * 0.33);
+                html += `
+                    <tr>
+                        <td>${subIdx + 1}</td>
+                        <td style="text-align:left; font-weight:500;">${sub.name}</td>
+                        <td><strong>${sub.obtained}</strong></td>
+                        <td>${sub.full}</td>
+                        <td><span class="status-badge ${isPass ? 'pass' : 'fail'}">${isPass ? 'Pass' : 'Fail'}</span></td>
+                    </tr>
+                `;
+            });
+            html += `
+                        </tbody>
+                    </table>
+                    <div class="exam-summary">
+                        <div class="summary-item"><span class="summary-label">📊 Total:</span><span class="summary-value">${exam.total} / ${exam.fullMark}</span></div>
+                        <div class="summary-item"><span class="summary-label">📈 Percentage:</span><span class="summary-value">${exam.percent}%</span></div>
+                        <div class="summary-item"><span class="summary-label">⭐ GPA:</span><span class="gpa-badge-sm">${exam.gpa.toFixed(2)} (${exam.grade})</span></div>
+                        <div class="summary-item"><span class="summary-label">🎯 Result:</span><span class="status-badge ${exam.result.includes('Pass') ? 'pass' : 'fail'}">${exam.result}</span></div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        html += `</div>`;
+        document.getElementById('studentOwnResult').innerHTML = html;
+    }
+    
+    function studentLogout() {
+        loggedInStudent = null;
+        document.getElementById('studentLoginSection').style.display = 'block';
+        document.getElementById('studentInfoCard').style.display = 'none';
+        document.getElementById('adminControlsPanel').style.display = 'flex';
+        document.getElementById('resultTableWrap').style.display = 'block';
+        document.getElementById('topHoldersBox').style.display = 'block';
+        render();
+    }
+    
+    function toggleAdmin() {
+        if(!isAdmin) {
+            let pass = prompt("Enter Admin Password:");
+            if(pass === "#$t") {
+                isAdmin = true;
+                document.getElementById('mainBody').classList.add('is-admin');
+                document.getElementById('loginBtn').innerHTML = '<i class="fas fa-sign-out-alt"></i> Logout Admin';
+                if(loggedInStudent) studentLogout();
+            } else if(pass !== null) alert("Wrong Password!");
+        } else {
+            isAdmin = false;
+            document.getElementById('mainBody').classList.remove('is-admin');
+            document.getElementById('loginBtn').innerHTML = '<i class="fas fa-lock"></i> Admin Login';
+            render();
+        }
+    }
+    
+    function editExamNameInline() {
+        if(!isAdmin) return;
+        const currentExam = document.getElementById('eSel').value;
+        const newName = prompt("Enter new exam name:", currentExam);
+        if(newName && newName.trim() !== "" && newName !== currentExam) {
+            const className = document.getElementById('cSel').value;
+            const group = document.getElementById('gSel').value;
+            const index = examsList.indexOf(currentExam);
+            if(index !== -1) {
+                examsList[index] = newName.trim();
+                db.ref(`exams_list_per_class/${className}_${group}`).set(examsList).then(() => {
+                    const eSel = document.getElementById('eSel');
+                    eSel.innerHTML = examsList.map(e => `<option>${e}</option>`).join('');
+                    eSel.value = newName;
+                    updateInfo();
+                    updateScanDropdown();
+                    alert("Exam name updated!");
                 });
             }
         }
     }
-    initSampleData();
+    
+    function updateScanDropdown() {
+        const className = document.getElementById('cSel').value;
+        let group = document.getElementById('gSel').value;
+        if(!isGroupApplicable(className)) group = "General";
+        const currentExam = document.getElementById('eSel').value;
+        db.ref(`exams_list_per_class/${className}_${group}`).once('value', (snap) => {
+            const allExams = snap.val() || [];
+            const scanSelect = document.getElementById('scanSourceExam');
+            if(scanSelect) {
+                let options = allExams.filter(ex => ex !== currentExam);
+                scanSelect.innerHTML = '<option value="">-- Select Source Exam --</option>' + options.map(ex => `<option value="${ex}">${ex}</option>`).join('');
+            }
+        });
+    }
+    
+    function addExam() {
+        if(!isAdmin) return;
+        let v = document.getElementById('examInp').value.trim();
+        if(v && !examsList.includes(v)) {
+            const className = document.getElementById('cSel').value;
+            let group = document.getElementById('gSel').value;
+            if(!isGroupApplicable(className)) group = "General";
+            db.ref(`exams_list_per_class/${className}_${group}`).once('value', (snap) => {
+                let list = snap.val() || [];
+                list.push(v);
+                db.ref(`exams_list_per_class/${className}_${group}`).set(list).then(() => {
+                    examsList = list;
+                    const eSel = document.getElementById('eSel');
+                    eSel.innerHTML = examsList.map(e => `<option>${e}</option>`).join('');
+                    eSel.value = v;
+                    document.getElementById('examInp').value = '';
+                    updateInfo();
+                    updateScanDropdown();
+                    alert(`"${v}" exam added!`);
+                });
+            });
+        } else alert("Exam already exists!");
+    }
+    
+    function removeExam() {
+        const currentExam = document.getElementById('eSel').value;
+        if(isAdmin && confirm(`Delete "${currentExam}"?`)) {
+            const className = document.getElementById('cSel').value;
+            let group = document.getElementById('gSel').value;
+            if(!isGroupApplicable(className)) group = "General";
+            examsList = examsList.filter(e => e !== currentExam);
+            db.ref(`exams_list_per_class/${className}_${group}`).set(examsList).then(() => {
+                const eSel = document.getElementById('eSel');
+                eSel.innerHTML = examsList.map(e => `<option>${e}</option>`).join('');
+                if(examsList.length > 0) eSel.value = examsList[0];
+                updateInfo();
+                updateScanDropdown();
+            });
+        }
+    }
+    
+    function saveToCloud() { if(!isAdmin) return; db.ref(getPath()).set({ subjects, students, marks, fms }).then(() => alert("Data saved!")); }
+    function syncToAll() { if(!isAdmin || !confirm("Copy to all exams?")) return; examsList.forEach(ex => { const path = getPath(ex); db.ref(path).once('value', (snap) => { let data = snap.val() || {}; data.subjects = subjects; data.students = students; data.fms = fms; db.ref(path).set(data); }); }); alert("Synced to all exams!"); }
+    
+    function render() {
+        if(loggedInStudent) { document.getElementById('resultTableWrap').style.display = 'none'; return; }
+        document.getElementById('resultTableWrap').style.display = 'block';
+        const head = document.getElementById('hRow');
+        const body = document.getElementById('tBody');
+        let scanHtml = '';
+        if(isAdmin && examsList.length > 1) {
+            scanHtml = `<div class="scan-container admin-only"><select id="scanSourceExam" class="scan-select"><option value="">-- Select Source Exam --</option>${examsList.filter(ex => ex !== document.getElementById('eSel').value).map(ex => `<option value="${ex}">${ex}</option>`).join('')}</select><button class="btn-scan" onclick="scanStudents()"><i class="fas fa-copy"></i> Name Scan / নাম স্ক্যান</button></div>`;
+        }
+        let hHtml = `<th style="width:35px">#</th><th style="width:100px">Student Name ${scanHtml}</th>`;
+        subjects.forEach((s, i) => {
+            hHtml += `<th><span contenteditable="${isAdmin}" style="display:block;" onblur="if(isAdmin) subjects[${i}]=this.innerText">${s}</span><input type="number" class="fm-input" value="${fms[i]||100}" oninput="if(isAdmin) { fms[${i}]=this.value; calc(); }" ${isAdmin?'':'disabled'}><span class="btn-del" onclick="delSub(${i})">✖</span></th>`;
+        });
+        hHtml += `<th class="cell-total">Total</th><th class="cell-pct">%</th><th class="cell-gpa">GPA</th><th class="cell-res">Result</th><th class="cell-pos">Rank</th>`;
+        head.innerHTML = hHtml;
+        let bHtml = '';
+        students.forEach((name, sIdx) => {
+            let isDisabled = isAdmin ? '' : 'disabled';
+            let displayName = name.length > 20 ? name.substring(0,20) : name;
+            bHtml += `<tr><td style="width:35px">${sIdx+1}</td><td style="width:100px"><input type="text" class="stu-name-input" value="${displayName}" oninput="updateStudentName(${sIdx}, this.value)" ${isDisabled} maxlength="20"><span class="btn-del" onclick="delStu(${sIdx})">✖</span></td>`;
+            subjects.forEach((_, subIdx) => { let mKey = `${sIdx}_${subIdx}`; bHtml += `<td><input type="number" class="mark-input" value="${marks[mKey]||0}" oninput="marks['${mKey}']=this.value;calc()" ${isDisabled}></td>`; });
+            bHtml += `<td class="r-total cell-total">0</td><td class="r-pct cell-pct">0%</td><td class="r-gpa cell-gpa">-</td><td class="r-res cell-res">-</td><td class="r-pos cell-pos">-</td></tr>`;
+        });
+        body.innerHTML = bHtml;
+        calc(); toggleCols();
+    }
+    
+    function updateStudentName(sIdx, val) { if(val.length > 20) val = val.substring(0,20); students[sIdx] = val; render(); }
+    
+    function calc() {
+        const rows = document.querySelectorAll('#tBody tr');
+        let dataList = [];
+        rows.forEach((row, sIdx) => {
+            let total = 0, fullMark = 0, isFail = false;
+            subjects.forEach((_, subIdx) => {
+                let m = parseFloat(marks[`${sIdx}_${subIdx}`]) || 0;
+                let fm = parseFloat(fms[subIdx]) || 100;
+                total += m; fullMark += fm;
+                if(m < (fm * 0.33)) isFail = true;
+            });
+            const percent = fullMark > 0 ? Math.round((total/fullMark)*100) : 0;
+            const gpaData = calculateGPA(percent);
+            row.querySelector('.r-total').innerText = total;
+            row.querySelector('.r-pct').innerText = percent + '%';
+            row.querySelector('.r-gpa').innerHTML = `<span class="gpa-badge">${gpaData.gpa.toFixed(2)} (${gpaData.grade})</span>`;
+            row.querySelector('.r-res').innerHTML = isFail ? '<span class="status-badge fail">Fail</span>' : '<span class="status-badge pass">Pass</span>';
+            dataList.push({ sIdx, total, name: students[sIdx], isFail });
+        });
+        let tableRanked = [...dataList].sort((a,b) => b.total - a.total);
+        let meritListRanked = dataList.filter(s => !s.isFail).sort((a,b) => b.total - a.total);
+        dataList.forEach(s => { let rank = tableRanked.findIndex(x => x.total === s.total) + 1; rows[s.sIdx].querySelector('.r-pos').innerHTML = `<span style="font-weight:800">${rank}</span>`; });
+        updateTopHolders(meritListRanked);
+    }
+    
+    function updateTopHolders(passedRanked) {
+        const box = document.getElementById('topHoldersBox');
+        let filtered = passedRanked.filter(r => r.name && r.total > 0).slice(0, 10);
+        if(!filtered.length) { box.style.display = 'none'; return; }
+        box.style.display = 'block';
+        let medals = ['🥇 1st', '🥈 2nd', '🥉 3rd'];
+        let items = filtered.map((r, i) => { let medal = i < 3 ? medals[i] : `${i+1}th`; let displayName = r.name.length > 25 ? r.name.substring(0,25) + '...' : r.name; return `<div class="rank-item"><span>${medal}</span><span><strong>${displayName}</strong> (${r.total})</span></div>`; });
+        let mid = Math.ceil(items.length/2);
+        document.getElementById('topList').innerHTML = `<div class="merit-column">${items.slice(0,mid).join('')}</div><div class="merit-column">${items.slice(mid).join('')}</div>`;
+    }
+    
+    function toggleCols() {
+        let t=document.getElementById('chkTotal').checked, p=document.getElementById('chkPct').checked, g=document.getElementById('chkGPA').checked, r=document.getElementById('chkRes').checked, s=document.getElementById('chkPos').checked;
+        document.querySelectorAll('.cell-total').forEach(el=>el.style.display=t?'':'none');
+        document.querySelectorAll('.cell-pct').forEach(el=>el.style.display=p?'':'none');
+        document.querySelectorAll('.cell-gpa').forEach(el=>el.style.display=g?'':'none');
+        document.querySelectorAll('.cell-res').forEach(el=>el.style.display=r?'':'none');
+        document.querySelectorAll('.cell-pos').forEach(el=>el.style.display=s?'':'none');
+    }
+    
+    function addSub() { if(isAdmin) { let v = document.getElementById('subInp').value; if(v){ subjects.push(v); fms[subjects.length-1]=100; render(); document.getElementById('subInp').value=''; } } }
+    function addStu() { if(isAdmin) { let v = document.getElementById('nameInp').value.trim(); if(v){ if(v.length > 20) v = v.substring(0,20); students.push(v); render(); document.getElementById('nameInp').value=''; } } }
+    function delSub(i) { if(isAdmin && confirm("Delete subject?")) { subjects.splice(i,1); render(); } }
+    function delStu(i) { if(isAdmin && confirm("Delete student?")) { students.splice(i,1); render(); } }
+    
+    function scanStudents() {
+        if(!isAdmin) return;
+        const currentExam = document.getElementById('eSel').value;
+        const className = document.getElementById('cSel').value;
+        let group = document.getElementById('gSel').value;
+        if(!isGroupApplicable(className)) group = "General";
+        const selectedSourceExam = document.getElementById('scanSourceExam').value;
+        if(!selectedSourceExam) { alert("Please select a source exam to copy student names from!"); return; }
+        if(selectedSourceExam === currentExam) { alert("Cannot copy from the same exam!"); return; }
+        const sourcePath = `results/${className}_${group}_${selectedSourceExam}`.replace(/\s+/g, '_');
+        const targetPath = `results/${className}_${group}_${currentExam}`.replace(/\s+/g, '_');
+        db.ref(sourcePath).once('value', (snap) => {
+            const sourceData = snap.val() || {};
+            const sourceStudents = sourceData.students || [];
+            if(sourceStudents.length === 0) { alert("No students found in source exam!"); return; }
+            db.ref(targetPath).once('value', (targetSnap) => {
+                let targetData = targetSnap.val() || {};
+                targetData.students = [...sourceStudents];
+                if(sourceData.subjects && sourceData.subjects.length > 0 && subjects.length === 0) {
+                    targetData.subjects = sourceData.subjects;
+                    targetData.fms = sourceData.fms;
+                    subjects = sourceData.subjects;
+                    fms = sourceData.fms;
+                } else { 
+                    targetData.subjects = subjects; 
+                    targetData.fms = fms; 
+                }
+                let newMarks = {};
+                sourceStudents.forEach((stu, idx) => { 
+                    subjects.forEach((_, subIdx) => { 
+                        newMarks[`${idx}_${subIdx}`] = 0; 
+                    }); 
+                });
+                targetData.marks = newMarks;
+                db.ref(targetPath).set(targetData).then(() => { 
+                    students = sourceStudents; 
+                    marks = newMarks; 
+                    render(); 
+                    alert(`Successfully copied ${sourceStudents.length} student names from "${selectedSourceExam}" to "${currentExam}"!`);
+                });
+            });
+        });
+    }
+    
+    window.onload = () => { toggleAdminGroupField(); changeClass(); toggleGroupForStudent(); };
 </script>
 </body>
 </html>
